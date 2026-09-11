@@ -203,7 +203,7 @@ input[data-dirty='1']{border-color:#2563eb;background:#f8fbff;box-shadow:0 0 0 3
   </div>
 
   <div class='grid2'>
-    <div class='card'><h2>空间网络</h2><div class='panel-subtitle'>并列展示余杭黄湖村庄级链路与松阳县乡镇级链路的血样配送关系。</div><svg id='networkSvg' viewBox='0 0 1360 1160'></svg></div>
+    <div class='card'><h2>空间网络</h2><div class='panel-subtitle'>并列展示A区某镇村庄级链路与C县乡镇级链路的血样配送关系。</div><svg id='networkSvg' viewBox='0 0 1360 1160'></svg></div>
     <div class='card'><h2>区域公平与约束</h2><div class='panel-subtitle'>按两条链路汇总展示服务率、健康、公平与约束触发状态。</div><svg id='fairnessSvg' viewBox='0 0 1360 1160'></svg><div id='constraintSummary' style='margin-top:0'></div></div>
   </div>
 
@@ -513,8 +513,8 @@ function renderFairness(step){
   if(!step){svg.innerHTML=''; if(el('constraintSummary')) el('constraintSummary').innerHTML=''; return;}
   const villages=step.villages||[];
   const groups=[
-    {title:'余杭黄湖链路',badge:'村庄级下沉',tone:'#047857',soft:'#ecfdf5',border:'#a7f3d0',nodes:villages.slice(0,2)},
-    {title:'松阳链路',badge:'乡镇级下沉',tone:'#1d4ed8',soft:'#eff6ff',border:'#bfdbfe',nodes:villages.slice(2)}
+    {title:'A区某镇链路',badge:'村庄级下沉',tone:'#047857',soft:'#ecfdf5',border:'#a7f3d0',nodes:villages.slice(0,2)},
+    {title:'C县链路',badge:'乡镇级下沉',tone:'#1d4ed8',soft:'#eff6ff',border:'#bfdbfe',nodes:villages.slice(2)}
   ];
   const flagMeta={coverage_floor_breached:'覆盖底线',fairness_floor_breached:'公平底线',hospital_redline_breached:'医院容量',remote_floor_breached:'偏远村底线',enterprise_exit_triggered:'企业退出'};
   const wrapByChars=(text,maxChars)=>{const s=String(text||''); const lines=[]; for(let i=0;i<s.length;i+=maxChars) lines.push(s.slice(i,i+maxChars)); return lines.length?lines:[''];};
