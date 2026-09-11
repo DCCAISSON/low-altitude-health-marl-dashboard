@@ -178,7 +178,7 @@ result = train_spatial_marl(
         seed=request.seed,
     ),
     output_root="${OUTPUT_ROOT}",
-    scenario_name=request.scenario_name,
+    scenario_name=None,
     progress_callback=emit,
     preloaded_config=cfg,
 )
