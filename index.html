@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang='zh-CN'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width,initial-scale=1'>
+<meta name='description' content='低空健康服务与农村慢病管理多主体仿真结果公开展示平台'>
+<meta name='theme-color' content='#eef4fb'>
+<link rel='canonical' href='https://dccaisson.github.io/low-altitude-health-marl-dashboard/'>
+<title>低空健康服务 MARL 决策看板</title>
+<style>
+:root{--bg:#f4f7fb;--panel:#ffffff;--panel-soft:#f8fbff;--line:#d6e2f0;--line-strong:#b7c8dc;--text:#0f172a;--muted:#5b708b;--accent:#2563eb;--accent-soft:#dbeafe;--good:#15803d;--warn:#b45309;--bad:#b91c1c}
+body{font-family:Arial,'Microsoft YaHei',sans-serif;margin:0;background:linear-gradient(180deg,#eef4fb 0%,#f8fbff 100%);color:var(--text)}
+.wrap{max-width:1860px;margin:0 auto;padding:28px 28px 42px}
+.header{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;padding:0 2px 4px}
+.header-main{display:flex;flex-direction:column;gap:10px}
+.header-kicker{font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:#4f6b8a;font-weight:800}
+.header-meta{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.status-board{background:rgba(255,255,255,.72);border:1px solid var(--line);border-radius:16px;padding:12px 14px;min-width:220px;box-shadow:0 8px 22px rgba(15,23,42,.05)}
+.static-notice{display:flex;align-items:flex-start;gap:12px;margin-top:14px;padding:13px 16px;border:1px solid #b9d9cf;border-radius:16px;background:linear-gradient(180deg,#f7fffc 0%,#edf9f5 100%);color:#23483e;line-height:1.65}
+.static-notice strong{flex:0 0 auto;color:#14624f}
+.card{background:linear-gradient(180deg,var(--panel) 0%,var(--panel-soft) 100%);border:1px solid var(--line);box-shadow:0 10px 28px rgba(15,23,42,.06);border-radius:20px;padding:20px 22px;margin-top:18px;overflow:hidden}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+h1{font-size:34px;margin:0 0 6px;color:#0b1b33;letter-spacing:.3px}
+h2{font-size:31px;margin:0;color:#13233c}.muted{color:var(--muted)}
+.value{font-size:30px;font-weight:800;line-height:1.2;word-break:break-word;color:#10213a}
+.label{font-size:15px;color:var(--muted);font-weight:700;margin-bottom:6px}
+.insight-groups{display:grid;grid-template-columns:1fr;gap:18px;margin-top:18px}
+.insight-section{background:linear-gradient(180deg,#fbfdff 0%,#f4f8fd 100%);border:1px solid #dbe7f4;border-radius:18px;padding:16px 16px 18px}
+.insight-section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+.insight-section-title{font-size:18px;color:#17304d;font-weight:800}
+.insight-section-note{font-size:15px;color:#607995;line-height:1.6;max-width:860px}
+.insight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.insight-card{background:linear-gradient(180deg,#ffffff 0%,#f4f8fd 100%);border:1px solid #d8e6f5;border-radius:18px;padding:16px 16px 15px;box-shadow:0 8px 20px rgba(15,23,42,.05)}
+.insight-card.level{border-color:#d8e6f5}
+.insight-card.counterfactual{background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);border-color:#d3e2f3}
+.insight-kicker{font-size:13px;letter-spacing:.7px;text-transform:uppercase;color:#607995;font-weight:800}
+.insight-title{font-size:17px;color:#1f3654;font-weight:800;margin-top:6px}
+.insight-value{font-size:34px;font-weight:900;color:#10213a;margin-top:8px;line-height:1.15}
+.insight-note{font-size:14px;color:#607995;margin-top:8px;line-height:1.55}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}.editor{display:grid;grid-template-columns:repeat(8,minmax(150px,1fr));gap:12px;align-items:end}
+.editor>div{min-width:0}
+.control-panel{padding:22px 24px}
+.control-grid{display:grid;grid-template-columns:1.18fr .98fr;gap:18px;align-items:start}
+.control-section{background:rgba(255,255,255,.72);border:1px solid #dbe7f4;border-radius:16px;padding:16px 16px 14px;align-self:start}
+.section-title{font-size:14px;letter-spacing:.8px;text-transform:uppercase;color:#47627f;font-weight:800;margin-bottom:12px}
+.basic-editor{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:12px;align-items:end}
+.policy-editor{display:grid;grid-template-columns:repeat(3,minmax(140px,1fr));gap:12px;align-items:end}
+.compact-editor{display:grid;grid-template-columns:repeat(2,minmax(150px,1fr));gap:12px;align-items:end}
+.button-row{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.button-group{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.status-inline{font-size:14px;color:#6b7f96;white-space:nowrap}
+.compile-headline{font-size:15px;color:#1f3654;line-height:1.7;margin-bottom:12px}
+.compile-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:12px}
+.compile-stat{background:linear-gradient(180deg,#ffffff 0%,#f4f8fd 100%);border:1px solid #d8e6f5;border-radius:14px;padding:12px 14px}
+.compile-stat .value{font-size:26px}
+.compile-chip-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.compile-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;background:#f3f8ff;border:1px solid #d8e6f5;border-radius:999px;color:#25415f;font-size:14px;font-weight:700}
+.compile-paths{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:12px}
+.compile-path{background:#fbfdff;border:1px solid #dbe7f4;border-radius:14px;padding:12px 14px}
+.compile-path code{display:block;margin-top:6px;padding:7px 9px;background:#f4f8fd;border:1px solid #e0e9f4;border-radius:10px;color:#1e3552;font-size:12px;word-break:break-all}
+.compile-note-list{margin:0;padding-left:18px;color:#5f7691;line-height:1.75;font-size:14px}
+button,select,input{background:#fff;color:#10213a;border:1px solid var(--line-strong);border-radius:12px;padding:11px 12px;font-size:16px;box-sizing:border-box}
+button{background:linear-gradient(180deg,#ffffff 0%,#eef5ff 100%);font-weight:700;cursor:pointer;transition:all .18s ease}
+button:hover{border-color:var(--accent);box-shadow:0 6px 16px rgba(37,99,235,.14);transform:translateY(-1px)}
+button:disabled,select:disabled,input:disabled{cursor:not-allowed;color:#718198;background:#eef2f6;border-color:#d6dee8;box-shadow:none;opacity:.82}
+button:disabled:hover{border-color:#d6dee8;box-shadow:none;transform:none}
+select:focus,input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+input[type=text],input[type=number]{width:100%;box-sizing:border-box}select{width:100%;min-width:0}#configSelect,#scenarioSelect{min-width:0}
+svg{width:100%;height:auto;display:block;box-sizing:border-box;background:#fdfefe;border:1px solid var(--line);border-radius:16px}
+#curveSvg,#strategySvg{aspect-ratio:1200/240;min-height:280px}
+#scenarioSvg{aspect-ratio:1200/260;min-height:300px}
+#networkSvg{aspect-ratio:1360/1160;max-height:none;background:linear-gradient(180deg,#fbfdff 0%,#eef4f9 100%);border:1px solid #d7e2ec;border-radius:22px}
+#fairnessSvg{aspect-ratio:1360/1160;max-height:none;background:linear-gradient(180deg,#fbfdff 0%,#eef4f9 100%);border:1px solid #d7e2ec;border-radius:22px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:9px 10px;border-bottom:1px solid #e6eef7;text-align:left;font-size:16px}
+th{background:#f5f9ff;color:#28415f}
+.report-table{border:1px solid #dbe8f5;border-radius:14px;overflow:hidden;background:#fff}
+.report-table table{table-layout:fixed}
+.report-table th,.report-table td{text-align:center;padding:10px 8px}
+.report-table th:first-child,.report-table td:first-child{text-align:left;padding-left:14px;font-weight:700}
+.report-table tbody tr:nth-child(even){background:#f9fbfe}
+.delta-pos{color:#157f3b;font-weight:800}
+.delta-neg{color:#b42318;font-weight:800}
+.delta-neutral{color:#48627f;font-weight:700}
+a{color:#0f62fe}
+.pill{display:inline-block;padding:7px 12px;background:#edf4ff;border:1px solid #d8e8ff;border-radius:999px;margin-right:8px;margin-bottom:8px;color:#183150;font-size:14px;font-weight:700;line-height:1.35}
+.preview-shell{display:flex;flex-direction:column;gap:14px}
+.preview-pills{display:flex;flex-wrap:wrap;gap:8px}
+.preview-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.preview-panel{background:rgba(255,255,255,.78);border:1px solid #dbe7f4;border-radius:16px;padding:14px 14px 12px}
+.preview-panel.scenario{border-color:#d3e6ff;background:linear-gradient(180deg,#ffffff 0%,#f5faff 100%)}
+.preview-panel.override{border-color:#f5dec2;background:linear-gradient(180deg,#fffdf8 0%,#fff7ed 100%)}
+.preview-panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.preview-panel-title{font-size:15px;color:#17304d;font-weight:800}
+.preview-panel-count{font-size:13px;color:#5f7691;font-weight:700}
+.preview-group+.preview-group{margin-top:12px;padding-top:12px;border-top:1px dashed #d9e6f3}
+.preview-group-title{font-size:13px;color:#4a647f;font-weight:800;letter-spacing:.4px;text-transform:uppercase;margin-bottom:10px}
+.preview-change-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.preview-change-card{background:#fff;border:1px solid #e1ebf5;border-radius:14px;padding:12px 12px 10px;box-shadow:0 6px 16px rgba(15,23,42,.04)}
+.preview-change-card.override{border-color:#f3d5ad}
+.preview-change-label{font-size:14px;color:#17304d;font-weight:800;line-height:1.5}
+.preview-change-values{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:16px;color:#10213a;font-weight:800;flex-wrap:wrap}
+.preview-change-arrow{color:#5f7691}
+.preview-change-path{margin-top:8px;font-size:12px;color:#6d8298;word-break:break-all}
+.preview-empty{padding:10px 2px 2px;color:#607995;font-size:14px;line-height:1.7}
+input[data-dirty='1']{border-color:#2563eb;background:#f8fbff;box-shadow:0 0 0 3px rgba(37,99,235,.10)}
+.good{color:var(--good)}.bad{color:var(--bad)}.warn{color:var(--warn)}
+.chart-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:10px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;max-width:100%}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:15px;color:#4b6482;white-space:nowrap}
+.legend-line{width:20px;height:0;border-top:4px solid;border-radius:999px}
+.summary-select{min-width:280px;max-width:100%;width:100%}
+.summary-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,420px);gap:12px;align-items:end}
+.summary-row .muted{min-width:0;word-break:break-word}.table-wrap{overflow-x:auto}
+.panel-subtitle{margin-top:4px;font-size:18px;color:#5e7693;line-height:1.6}
+.plot-card{padding:22px 22px 18px}
+.plot-shell{padding:8px 4px 2px}
+.playback-card{padding-top:14px;padding-bottom:14px}
+@media(max-width:1600px){.editor{grid-template-columns:repeat(6,minmax(150px,1fr))}.basic-editor{grid-template-columns:repeat(4,minmax(150px,1fr))}.policy-editor{grid-template-columns:repeat(3,minmax(140px,1fr))}}@media(max-width:1280px){.grid2,.grid3,.summary-row,.control-grid,.preview-grid{grid-template-columns:1fr}.editor{grid-template-columns:repeat(4,minmax(150px,1fr))}.basic-editor,.policy-editor{grid-template-columns:repeat(3,minmax(150px,1fr))}}@media(max-width:1100px){.editor,.basic-editor,.policy-editor{grid-template-columns:repeat(3,minmax(150px,1fr))}}@media(max-width:900px){.editor,.compact-editor,.basic-editor,.policy-editor{grid-template-columns:repeat(2,minmax(150px,1fr))}.button-row{align-items:flex-start}}@media(max-width:640px){.wrap{padding:18px 12px 30px}.header{flex-direction:column;gap:10px}.header-meta{width:100%;align-items:stretch}.status-board{min-width:0}.static-notice{flex-direction:column;gap:4px}.card,.control-panel,.plot-card{padding:16px 14px;border-radius:16px}h1{font-size:27px;line-height:1.25}h2{font-size:24px}.panel-subtitle{font-size:16px}.editor,.compact-editor,.basic-editor,.policy-editor{grid-template-columns:1fr}.button-row,.controls{align-items:stretch}.button-group{width:100%}.button-group button{flex:1 1 calc(50% - 8px)}#stepSlider{width:100%!important}.summary-select{min-width:0}.value{font-size:26px}.insight-value{font-size:30px}}
+</style>
+</head>
+<body>
+<div class='wrap'>
+  <div class='header'>
+    <div class='header-main'>
+      <div class='header-kicker'>Research Decision Dashboard</div>
+      <div>
+      <h1>低空健康服务 MARL 决策看板</h1>
+      <div class='panel-subtitle'>面向农村慢病管理的多主体博弈、情景评估与政策支持平台</div>
+      </div>
+    </div>
+    <div class='header-meta'>
+      <div class='status-board muted'><div id='updateLabel'></div><div id='wsStatus' style='margin-top:6px'></div></div>
+    </div>
+  </div>
+
+  <div class='static-notice' role='status'>
+    <strong>公开展示版</strong>
+    <span>本页展示已完成的仿真训练结果。参数编辑、在线训练和报告导出需在本地完整平台中运行；页面结果用于研究演示，不作为医疗诊断或正式政策结论。</span>
+  </div>
+
+  <div class='card control-panel'>
+    <h2>运行控制台</h2>
+    <div class='panel-subtitle'>以下参数记录当前展示结果的基础配置；公开页面不执行新的模型训练。</div>
+    <div class='control-grid' style='margin-top:16px'>
+      <div class='control-section'>
+        <div class='section-title'>基础运行设定</div>
+        <div class='basic-editor'>
+          <div><div class='label'>配置方案</div><select id='configSelect'></select></div>
+          <div><div class='label'>情景方案</div><select id='scenarioSelect'></select></div>
+          <div><div class='label'>训练轮数</div><input id='episodesInput' type='number' value='60'></div>
+          <div><div class='label'>评估间隔</div><input id='evalEveryInput' type='number' value='5'></div>
+          <div><div class='label'>随机种子</div><input id='seedInput' type='number' value='42'></div>
+          <div><div class='label'>运行名称</div><input id='runNameInput' type='text' value='platform_run'></div>
+          <div><div class='label'>报告名称</div><input id='reportNameInput' type='text' value='platform_report'></div>
+        </div>
+      </div>
+      <div class='control-section'>
+        <div class='section-title'>政策与环境参数</div>
+        <div class='policy-editor'>
+          <div><div class='label'>基础需求率</div><input id='baseNeedRateInput' type='number' step='0.01' value='0.18'></div>
+          <div><div class='label'>医保报销比例</div><input id='reimbursementRateInput' type='number' step='0.01' value='0.20'></div>
+          <div><div class='label'>按单补贴</div><input id='perServiceSubsidyInput' type='number' step='0.01' value='0.15'></div>
+          <div><div class='label'>绩效补贴</div><input id='performanceSubsidyInput' type='number' step='1' value='25'></div>
+          <div><div class='label'>最低覆盖率</div><input id='coverageFloorInput' type='number' step='0.01' value='0.55'></div>
+          <div><div class='label'>公平性底线</div><input id='fairnessFloorInput' type='number' step='0.01' value='0.65'></div>
+          <div><div class='label'>偏远村底线</div><input id='remoteFloorInput' type='number' step='0.01' value='0.38'></div>
+          <div><div class='label'>天气扰动</div><input id='weatherStdInput' type='number' step='0.01' value='0.18'></div>
+          <div><div class='label'>空域扰动</div><input id='airspaceStdInput' type='number' step='0.01' value='0.10'></div>
+          <div><div class='label'>设备扰动</div><input id='deviceStdInput' type='number' step='0.01' value='0.08'></div>
+        </div>
+      </div>
+    </div>
+    <div class='button-row'>
+      <div class='button-group'><button id='previewBtn'>预览情景</button><button id='runBtn'>启动训练</button><button id='resetBtn'>恢复默认</button><button id='exportBtn'>导出报告</button></div><span id='platformStatus' class='status-inline'></span>
+    </div>
+    <div id='previewSummary' style='margin-top:10px'></div><div id='reportStatus'></div>
+    <div id='masterCompilePanel' class='control-section' style='margin-top:14px;display:none'>
+      <div class='section-title'>主表编译来源摘要</div>
+      <div class='panel-subtitle'>当配置方案选择“主表编译配置”时，显示该套参数如何由参数主表、运行时假设与显式默认共同生成。</div>
+      <div id='masterCompileBody' style='margin-top:12px'></div>
+    </div>
+  </div>
+
+  <div class='card'>
+    <h2>研究结论摘要</h2>
+    <div class='panel-subtitle'>用于快速概括当前训练状态下的效率、健康、公平与可持续性结论。</div>
+    <div id='summaryCards' class='insight-groups'></div>
+  </div>
+
+  <div class='card playback-card'><div class='controls'><button id='playBtn'>播放</button><button id='pauseBtn'>暂停</button><select id='traceMode'><option value='stream'>实时流</option><option value='latest'>最新回放</option><option value='best'>最佳回放</option></select><input id='stepSlider' type='range' min='1' max='1' value='1' style='width:320px'><span id='stepLabel'>第 1 期</span><span id='traceLabel' class='muted'></span></div></div>
+
+  <div class='grid2'>
+    <div class='card plot-card'>
+      <div class='chart-head'><h2>训练曲线</h2><div class='legend'><span class='legend-item'><span class='legend-line' style='border-color:#38bdf8'></span>得分</span><span class='legend-item'><span class='legend-line' style='border-color:#22c55e'></span>健康</span><span class='legend-item'><span class='legend-line' style='border-color:#f59e0b'></span>服务率</span><span class='legend-item'><span class='legend-line' style='border-color:#e879f9'></span>公平性</span></div></div>
+      <div class='panel-subtitle'>展示训练过程中综合绩效、健康改善、服务效率与公平性的收敛轨迹。</div>
+      <div class='plot-shell'><svg id='curveSvg' viewBox='0 0 1200 240' preserveAspectRatio='none'></svg></div>
+    </div>
+    <div class='card plot-card'>
+      <div class='chart-head'><h2>主体策略曲线</h2><div class='legend'><span class='legend-item'><span class='legend-line' style='border-color:#38bdf8'></span>企业价格</span><span class='legend-item'><span class='legend-line' style='border-color:#22c55e'></span>企业容量</span><span class='legend-item'><span class='legend-line' style='border-color:#f59e0b'></span>医院承接</span><span class='legend-item'><span class='legend-line' style='border-color:#ef4444'></span>医院协同</span></div></div>
+      <div class='panel-subtitle'>展示企业与医院在博弈过程中对价格、容量与协同行为的动态调整。</div>
+      <div class='plot-shell'><svg id='strategySvg' viewBox='0 0 1200 240' preserveAspectRatio='none'></svg></div>
+    </div>
+  </div>
+
+  <div class='grid2'>
+    <div class='card'><h2>空间网络</h2><div class='panel-subtitle'>并列展示余杭黄湖村庄级链路与松阳县乡镇级链路的血样配送关系。</div><svg id='networkSvg' viewBox='0 0 1360 1160'></svg></div>
+    <div class='card'><h2>区域公平与约束</h2><div class='panel-subtitle'>按两条链路汇总展示服务率、健康、公平与约束触发状态。</div><svg id='fairnessSvg' viewBox='0 0 1360 1160'></svg><div id='constraintSummary' style='margin-top:0'></div></div>
+  </div>
+
+  <div class='grid2'>
+    <div class='card'>
+      <div class='chart-head'>
+        <h2 id='scenarioTitle'>情景内：MARL vs 启发式 · 服务率</h2>
+        <div class='controls'>
+          <div><div class='label'>指标</div><select id='scenarioMetricSelect'><option value='service'>服务率</option><option value='health'>健康</option><option value='welfare'>福利</option><option value='coverage'>覆盖率</option><option value='fairness'>公平性</option><option value='remote'>偏远村服务率</option><option value='load'>企业负载率</option><option value='chronic'>慢病管理率</option><option value='outflow'>重症外流率</option><option value='life_pop'>村民寿命提升</option><option value='life_chronic'>慢病寿命提升</option><option value='economic_gain'>社会经济收益增加</option><option value='fiscal_saving'>政府财政节约</option><option value='farmer_welfare'>农户福利提升</option><option value='breach'>约束违约数</option><option value='survival'>企业存活率</option></select></div>
+          <div><div class='label'>对照口径</div><select id='scenarioBasisSelect'><option value='within'>情景内：MARL vs 启发式</option><option value='relative' selected>情景相对基准情景</option></select></div>
+        </div>
+      </div>
+      <div class='panel-subtitle' id='scenarioSubtitle'>通过情景切换比较不同外部条件或政策组合下，政策推动情景相对基准情景的估算差值。</div>
+      <svg id='scenarioSvg' viewBox='0 0 1200 260' preserveAspectRatio='none'></svg>
+    </div>
+    <div class='card'>
+      <div class='summary-row'>
+        <div>
+          <h2 id='summaryPanelTitle'>当前运行态势</h2>
+          <div id='scenarioSource' class='muted' style='margin-top:6px;display:none'></div>
+          <div id='scenarioNote' class='muted' style='margin-top:4px;display:none'>当前表格可用于查看政策推动情景相对基准情景的估算差值</div>
+        </div>
+        <div class='controls' style='justify-content:flex-end'>
+          <div>
+            <div class='label'>显示模式</div>
+            <select id='summaryModeSelect' class='summary-select'>
+              <option value='current'>显示当前运行</option>
+              <option value='batch'>显示批量实验</option>
+            </select>
+          </div>
+          <div>
+            <div class='label'>实验摘要</div>
+            <select id='experimentSelect' class='summary-select'></select>
+          </div>
+        </div>
+      </div>
+      <div id='stepMetrics' style='margin-top:12px'></div>
+      <div id='batchPanel' style='display:none;margin-top:12px'>
+        <div id='scenarioTable' class='table-wrap'></div>
+      </div>
+    </div>
+  </div>
+
+  <div class='grid3'>
+    <div class='card'><h2>任务类型</h2><table><thead><tr><th>任务</th><th>需求</th><th>服务</th><th>服务率</th></tr></thead><tbody id='taskRows'></tbody></table></div>
+    <div class='card' style='grid-column:span 2'><h2>村镇节点明细</h2><div class='panel-subtitle'>与上方空间网络的五村五镇示意节点完全对应。</div><div class='table-wrap'><table><thead><tr><th>模式</th><th>节点类型</th><th>节点名称</th><th>关键特征</th><th>汇聚方式</th><th>承接医疗点</th></tr></thead><tbody id='villageRows'></tbody></table></div></div>
+  </div>
+</div>
+<script>
+const metricsPath='live/spatial_marl_live_metrics.json',latestTracePath='live/spatial_marl_latest_trace.json',bestTracePath='live/spatial_marl_best_trace.json',websocketUrlSeed='',experimentCandidates=["experiments/spatial_marl_batch_p1/summary.json", "experiments/smoke_farmer_mapping/summary.json", "experiments/scenario_batch/summary.json"];
+let metricsData=null,traces={latest:null,best:null,stream:null},streamEpisodes=[],streamEpisodeIndex=0,streamPlaybackPrimed=false,scenarioData=null,masterCompileSummary=null,mode='stream',index=0,timer=null,ws=null,editorDefaults={},editorDefaultsLoaded=false;
+const el=id=>document.getElementById(id), fmt=(v,d=3)=>Number(v??0).toFixed(d), emptyTrace=()=>({trace:[],network:{villages:[],hubs:[],hospitals:[],edges:[]},summary:{}}), syntheticStreamEpisodes=()=>{const history=metricsData?.history||[],latest=traces.latest||traces.stream||null; if(!history.length||!latest?.trace?.length) return []; return history.map((point,idx)=>({trace:latest.trace,network:latest.network||emptyTrace().network,summary:latest.summary||{},episode:Number(point?.episode??(idx+1)),phase:'evaluation'}));}, streamPlaybackEpisodes=()=>streamEpisodes.length?streamEpisodes:syntheticStreamEpisodes(), currentStreamTrace=()=>{const episodes=streamPlaybackEpisodes(); return episodes.length?episodes[Math.max(0,Math.min(streamEpisodeIndex,episodes.length-1))]:(traces.stream||traces.latest||emptyTrace());}, currentTrace=()=>mode==='stream'?currentStreamTrace():(traces[mode]||emptyTrace());
+const scenarioNameMap={baseline:'基准情景',from_master:'主表编译情景',recommended:'推荐配置情景',harsh_weather:'恶劣天气情景',low_trust:'低信任情景',sparse_demand:'稀疏需求情景',chronic_burden:'慢病负担高情景',policy_push:'政策推动情景'};
+const configNameMap={spatial_network_recommended:'推荐空间网络配置',spatial_network_from_master:'主表编译配置',spatial_network_baseline:'基准空间网络配置',recommended:'推荐配置',from_master:'主表编译配置',baseline:'基准配置'};
+const taskNameMap={chronic_followup:'慢病复诊/随访',sample_transport:'检验样本送检',medicine_delivery:'常用药配送',acute_urgent:'急性高优需求'};
+const previewSectionLabelMap={simulation:'仿真设定',environment:'环境参数',policy:'政策参数',constraints:'约束条件',enterprise:'企业侧',medical:'医疗侧',farmer:'农户侧',disturbances:'扰动参数',task_types:'任务结构',network:'空间网络'};
+const previewFieldLabelMap={'simulation.base_need_rate':'基础需求率','environment.reimbursement_rate':'医保报销比例','environment.weather_service_penalty':'天气服务惩罚','environment.airspace_service_penalty':'空域服务惩罚','environment.trust_update_speed':'信任更新速度','environment.service_health_gain':'服务健康收益','environment.unmet_need_penalty':'未满足需求惩罚','environment.device_failure_penalty':'设备故障惩罚','policy.per_service_subsidy':'按单补贴','policy.performance_subsidy_per_coverage':'绩效补贴','policy.fairness_subsidy_per_point':'公平补贴','policy.remote_service_subsidy':'偏远服务补贴','policy.chronic_management_subsidy':'慢病管理补贴','policy.local_sampling_subsidy':'本地采样补贴','policy.urgent_task_subsidy':'急件补贴','policy.reimbursement_rate_floor':'报销底线','constraints.minimum_coverage_ratio':'最低覆盖率','constraints.coverage_shortfall_penalty':'覆盖短缺惩罚','constraints.underserved_penalty':'服务不足惩罚','constraints.fairness_floor':'公平性底线','constraints.fairness_penalty':'公平惩罚','constraints.remote_service_floor':'偏远村底线','constraints.remote_floor_penalty':'偏远村惩罚','enterprise.base_total_capacity':'企业总容量','enterprise.route_open_threshold':'开线阈值','enterprise.route_time_cost_weight':'路径时间成本权重','enterprise.operator_count':'企业运营人数','enterprise.lines_per_operator_limit':'人均可管航线数','enterprise.sample_turnaround_penalty':'样本周转惩罚','enterprise.local_contract_service_bonus':'本地签约服务加成','enterprise.population_density_route_scale':'人口密度航线尺度','farmer.latent_demand_release_rate':'潜在需求释放率','farmer.local_sample_point_bonus':'本地采样点加成','farmer.local_service_trust_gain':'本地服务信任增益','farmer.big_hospital_avoidance_weight':'大医院规避权重','farmer.learning_cost':'学习成本','disturbances.weather_std':'天气扰动','disturbances.weather_persistence':'天气持续性','disturbances.airspace_std':'空域扰动','disturbances.airspace_persistence':'空域持续性','disturbances.device_std':'设备扰动','disturbances.device_persistence':'设备持续性','network.village_avg_base_health':'村庄平均基础健康','network.village_avg_trust':'村庄平均信任','network.village_avg_demand_weight':'村庄平均需求权重','network.village_avg_traditional_time':'村庄平均传统就医时间','network.village_avg_risk_weight':'村庄平均风险权重','network.village_avg_healthy_share':'村庄平均健康占比','network.village_avg_managed_chronic_share':'村庄平均已管理慢病占比','network.village_avg_unmanaged_chronic_share':'村庄平均未管理慢病占比','network.village_avg_acute_severe_share':'村庄平均急性重症占比','network.remote_village_share':'偏远村占比','network.remote_village_avg_trust':'偏远村平均信任','network.remote_village_avg_traditional_time':'偏远村平均传统就医时间','network.hub_avg_capacity':'枢纽平均容量','network.hub_avg_reliability':'枢纽平均可靠性','network.hospital_avg_capacity':'医院平均容量','network.hospital_avg_integration_base':'医院平均协同基础','network.edge_avg_travel_time':'平均链路时间','network.edge_avg_weather_exposure':'平均天气暴露','network.village_edge_avg_travel_time':'村庄出发链路平均时间'};
+const previewTaskFieldLabelMap={demand_share:'需求占比',priority:'优先级',time_sensitivity_multiplier:'时间敏感乘数',health_benefit_multiplier:'健康收益乘数',price_sensitivity_multiplier:'价格敏感乘数',failure_penalty_multiplier:'失败惩罚乘数',medical_value_multiplier:'医疗价值乘数',enterprise_cost_multiplier:'企业成本乘数',reimbursement_bonus:'报销加成',trust_bonus:'信任加成',demand_shock_multiplier:'需求冲击乘数',risk_weight_multiplier:'风险加权乘数'};
+const overrideFieldCatalog=[{id:'baseNeedRateInput',section:'simulation',key:'base_need_rate',fallback:0.18},{id:'reimbursementRateInput',section:'environment',key:'reimbursement_rate',fallback:0.20},{id:'perServiceSubsidyInput',section:'policy',key:'per_service_subsidy',fallback:0.15},{id:'performanceSubsidyInput',section:'policy',key:'performance_subsidy_per_coverage',fallback:25},{id:'coverageFloorInput',section:'constraints',key:'minimum_coverage_ratio',fallback:0.55},{id:'fairnessFloorInput',section:'constraints',key:'fairness_floor',fallback:0.65},{id:'remoteFloorInput',section:'constraints',key:'remote_service_floor',fallback:0.38},{id:'weatherStdInput',section:'disturbances',key:'weather_std',fallback:0.18},{id:'airspaceStdInput',section:'disturbances',key:'airspace_std',fallback:0.10},{id:'deviceStdInput',section:'disturbances',key:'device_std',fallback:0.08}];
+const editorDirty=new Set();
+const metricCatalog={service:{label:'服务率',delta:'delta_average_service_rate_mean',marl:'marl_average_service_rate_mean',digits:3,minAbs:0.01,preferLower:false,scale:1,unit:''},health:{label:'健康',delta:'delta_final_average_health_mean',marl:'marl_final_average_health_mean',digits:3,minAbs:0.01,preferLower:false,scale:1,unit:''},welfare:{label:'福利',delta:'delta_welfare_mean',marl:'marl_welfare_mean',digits:1,minAbs:1,preferLower:false,scale:1,unit:''},coverage:{label:'覆盖率',subtitleLabel:'全期平均覆盖率',delta:'delta_average_network_coverage_mean',marl:'marl_average_network_coverage_mean',digits:3,minAbs:0.01,preferLower:false,scale:1,unit:''},fairness:{label:'公平性',delta:'delta_average_fairness_mean',marl:'marl_average_fairness_mean',digits:3,minAbs:0.01,preferLower:false,scale:1,unit:''},remote:{label:'偏远村服务率',delta:'delta_average_remote_service_rate_mean',marl:'marl_average_remote_service_rate_mean',digits:3,minAbs:0.01,preferLower:false,scale:1,unit:''},load:{label:'企业负载率',delta:'delta_average_load_factor_mean',marl:'marl_average_load_factor_mean',digits:3,minAbs:0.01,preferLower:false,scale:1,unit:''},chronic:{label:'慢病管理率',delta:'delta_average_chronic_management_rate_mean',marl:'marl_average_chronic_management_rate_mean',digits:3,minAbs:0.01,preferLower:false,scale:1,unit:''},outflow:{label:'重症外流率',delta:'delta_average_severe_outflow_rate_mean',marl:'marl_average_severe_outflow_rate_mean',digits:3,minAbs:0.01,preferLower:true,scale:1,unit:''},life_pop:{label:'村民寿命提升',delta:'population_life_year_gain_mean',marl:'population_life_year_gain_mean',levelMarl:'marl_population_life_expectancy_years_est_mean',levelBaseline:'baseline_population_life_expectancy_years_est_mean',digits:2,minAbs:0.05,preferLower:false,relativeOnDelta:true,scale:1,unit:'年'},life_chronic:{label:'慢病寿命提升',delta:'chronic_life_year_gain_mean',marl:'chronic_life_year_gain_mean',levelMarl:'marl_chronic_life_expectancy_years_est_mean',levelBaseline:'baseline_chronic_life_expectancy_years_est_mean',digits:2,minAbs:0.05,preferLower:false,relativeOnDelta:true,scale:1,unit:'年'},economic_gain:{label:'社会经济收益增加',delta:'economic_gain_total_mean',marl:'economic_gain_total_mean',levelMarl:'marl_economic_value_total_mean',levelBaseline:'baseline_economic_value_total_mean',digits:2,minAbs:0.1,preferLower:false,relativeOnDelta:true,scale:10000,unit:'万元'},fiscal_saving:{label:'政府财政节约',delta:'fiscal_saving_vs_baseline_mean',marl:'fiscal_saving_vs_baseline_mean',levelMarl:'marl_net_fiscal_cost_mean',levelBaseline:'baseline_net_fiscal_cost_mean',inverseGap:true,digits:2,minAbs:0.1,preferLower:false,relativeOnDelta:true,scale:10000,unit:'万元'},farmer_welfare:{label:'农户福利提升',delta:'farmer_welfare_gain_total_mean',marl:'marl_farmer_welfare_total_mean',levelMarl:'marl_farmer_welfare_total_mean',levelBaseline:'baseline_farmer_welfare_total_mean',digits:2,minAbs:0.1,preferLower:false,relativeOnDelta:true,scale:10000,unit:'万元'},breach:{label:'约束违约数',delta:'delta_constraint_breach_count_mean',marl:'marl_constraint_breach_count_mean',digits:1,minAbs:0.5,preferLower:true,scale:1,unit:''},survival:{label:'企业存活率',delta:null,marl:'marl_enterprise_survival_rate',digits:3,minAbs:0.01,preferLower:false,scale:1,unit:''}};
+const metricText=(value,key)=>{if(value===null||value===undefined||!Number.isFinite(Number(value))) return '—'; const m=metricCatalog[key]||{},digits=m.digits??3,scale=Number(m.scale??1),unit=m.unit||''; return `${(Number(value)/scale).toFixed(digits)}${unit}`;};
+const statusClass=s=>s==='running'?'warn':(s==='idle'?'good':'bad');
+const colorHealth=v=>{const c=Math.max(0,Math.min(1,Number(v??0)));return `rgb(${220-120*c},${70+140*c},90)`;};
+const polyline=(ps,c,width=5,opacity=1)=>`<polyline fill='none' stroke='${c}' stroke-width='${width}' stroke-opacity='${opacity}' stroke-linecap='round' stroke-linejoin='round' points='${ps.map(p=>p.join(',')).join(' ')}' />`;
+const normalizedPoints=(series,w,h,px,py,count=null)=>{const values=(series||[]).map(v=>Number(v??0)); if(!values.length) return []; const min=Math.min(...values),max=Math.max(...values),range=Math.max(max-min,1e-6),points=values.map((v,i)=>[px+(w-2*px)*(i/Math.max(values.length-1,1)),h-py-(h-2*py)*((v-min)/range)]); return count===null?points:points.slice(0,Math.max(0,Math.min(Number(count)||0,points.length)));};
+const strategyPoints=(series,w,h,px,py,count=null)=>{const values=(series||[]).map(v=>Number(v??0)); if(!values.length) return []; if(values.length===1) return [[px+(w-2*px)*0.5,h*0.5]]; const tail=values.length>3?values.slice(1):values,tailMin=Math.min(...tail),tailMax=Math.max(...tail),tailSpan=Math.max(tailMax-tailMin,1e-6),first=values[0],firstFar=Math.abs(first-tailMin)>tailSpan*1.8||Math.abs(first-tailMax)>tailSpan*1.8; const source=firstFar?tail:values,baseMin=Math.min(...source),baseMax=Math.max(...source),baseSpan=Math.max(baseMax-baseMin,1e-6),pad=baseSpan*0.22+1e-6,lower=baseMin-pad,upper=baseMax+pad,den=Math.max(upper-lower,1e-6),points=values.map((v,i)=>{const clipped=Math.max(lower,Math.min(upper,v)); return [px+(w-2*px)*(i/Math.max(values.length-1,1)),h-py-(h-2*py)*((clipped-lower)/den)];}); return count===null?points:points.slice(0,Math.max(0,Math.min(Number(count)||0,points.length)));};
+const partialPolylinePoints=(points,targetIndex,progress=1)=>{const total=points?.length||0; if(!total) return []; const idx=Math.max(0,Math.min(Number(targetIndex)||0,total-1)),ratio=Math.max(0,Math.min(Number(progress??1),1)); if(total===1) return [points[0]]; if(idx===0){const next=points[0],start=[Math.max(next[0]-140,6),next[1]],interp=ratio>=1?[next[0],next[1]]:[start[0]+(next[0]-start[0])*ratio,start[1]+(next[1]-start[1])*ratio]; return [start,interp];} const prev=points[idx-1],next=points[idx],interp=ratio>=1?[next[0],next[1]]:[prev[0]+(next[0]-prev[0])*ratio,prev[1]+(next[1]-prev[1])*ratio]; return points.slice(0,idx).concat([interp]);};
+async function fetchJson(path){const r=await fetch(path+`?ts=${Date.now()}`); if(!r.ok) throw new Error(path); return await r.json();}
+function optionLabel(id,key){if(id==='configSelect') return configNameMap[key]||key; if(id==='scenarioSelect') return scenarioNameMap[key]||key; return key;}
+function populateSelect(id,entries,selected=''){const node=el(id); node.innerHTML=Array.isArray(entries)?entries.map(x=>`<option value='${x}'>${optionLabel(id,x)}</option>`).join(''):Object.entries(entries).map(([k,v])=>`<option value='${k}' data-path='${v}'>${optionLabel(id,k)}</option>`).join(''); if(selected&&[...node.options].some(o=>o.value===selected)) node.value=selected;}
+function updateEditorDefaults(d){editorDefaults=d||{};}
+function defaultEditorValue(field){return editorDefaults?.[field.section]?.[field.key]??field.fallback;}
+function clearEditorDirty(){editorDirty.forEach(id=>{const node=el(id); if(node) delete node.dataset.dirty;}); editorDirty.clear();}
+function markEditorDirty(id){editorDirty.add(id); const node=el(id); if(node) node.dataset.dirty='1';}
+function bindEditorDirtyTracking(){overrideFieldCatalog.forEach(field=>{const node=el(field.id); if(!node||node.dataset.dirtyBound==='1') return; const mark=()=>markEditorDirty(field.id); node.addEventListener('input',mark); node.addEventListener('change',mark); node.dataset.dirtyBound='1';});}
+function applyEditorDefaults(d){updateEditorDefaults(d); overrideFieldCatalog.forEach(field=>{const node=el(field.id); if(node) node.value=defaultEditorValue(field);}); clearEditorDirty(); editorDefaultsLoaded=true;}
+function collectDirtyOverrides(){const overrides={}; overrideFieldCatalog.forEach(field=>{if(!editorDirty.has(field.id)) return; if(!overrides[field.section]) overrides[field.section]={}; overrides[field.section][field.key]=Number(el(field.id).value||0);}); return overrides;}
+function collectEditorPayload(){return{config_name:el('configSelect').value,scenario_name:el('scenarioSelect').value,episodes:Number(el('episodesInput').value||60),eval_every:Number(el('evalEveryInput').value||5),seed:Number(el('seedInput').value||42),run_name:el('runNameInput').value||'platform_run',report_name:el('reportNameInput').value||'platform_report',overrides:collectDirtyOverrides()};}
+function setWsStatus(text,css=''){el('wsStatus').className=css; el('wsStatus').textContent=text;}
+function setPlatformStatus(text,status='idle'){el('platformStatus').innerHTML=`平台状态：<span class='${statusClass(status)}'>${text}</span>`;}
+function toRelativeLink(p){const s=String(p||'').replaceAll('\\','/'); const i=s.indexOf('/outputs/'); return i>=0?s.slice(i+1):s;}
+function sendWs(type,payload={}){if(ws&&ws.readyState===WebSocket.OPEN){ws.send(JSON.stringify({type,payload}));return true;} setWsStatus('WebSocket 未连接','bad'); return false;}
+function connectWebSocket(){ws=new WebSocket(websocketUrlSeed||(`ws://${window.location.hostname}:${(Number(window.location.port||'8765')+1)}`)); ws.onopen=()=>{setWsStatus('WebSocket 已连接','good'); sendWs('get_state',{});}; ws.onclose=()=>{setWsStatus('WebSocket 已断开，正在重连','warn'); setTimeout(connectWebSocket,2000);}; ws.onerror=()=>setWsStatus('WebSocket 连接异常','bad'); ws.onmessage=async e=>handleWsMessage(JSON.parse(e.data));}
+function resetStreamPlayback(){traces.stream={trace:[],network:traces.latest?.network||traces.best?.network||emptyTrace().network,summary:{},episode:null,phase:''}; streamEpisodes=[]; streamEpisodeIndex=0; streamPlaybackPrimed=false; mode='stream'; index=0; if(el('traceMode')) el('traceMode').value='stream';}
+function ensureStream(p){if(streamEpisodes.length){const active=streamEpisodes[Math.max(0,Math.min(streamEpisodeIndex,streamEpisodes.length-1))]; if(active) return active;} if(!traces.stream){traces.stream={trace:[],network:p?.network||traces.latest?.network||traces.best?.network||emptyTrace().network,summary:{},episode:null,phase:''};} return traces.stream;}
+function previewValueText(value){if(value===null||value===undefined) return '—'; if(typeof value==='number'){if(!Number.isFinite(value)) return '—'; const abs=Math.abs(value); if(Number.isInteger(value)&&abs<1000) return String(value); const digits=abs>=100?2:(abs>=10?3:4); return Number(value).toFixed(digits).replace(/\.?0+$/,'');} if(typeof value==='boolean') return value?'是':'否'; return escapeHtml(String(value));}
+function previewPathLabel(path){const parts=String(path||'').split('.'); if(parts[0]==='task_types'&&parts.length>=3){const taskLabel=taskNameMap[parts[1]]||parts[1]; const fieldKey=parts.slice(2).join('.'); return `任务[${taskLabel}] · ${previewTaskFieldLabelMap[fieldKey]||fieldKey}`;} return previewFieldLabelMap[path]||`${previewSectionLabelMap[parts[0]]||parts[0]} · ${parts.slice(1).join('.')}`;}
+function renderPreviewChangeCard(change,tone){return `<div class='preview-change-card ${tone}'><div class='preview-change-label'>${escapeHtml(previewPathLabel(change.path))}</div><div class='preview-change-values'><span>${previewValueText(change.before)}</span><span class='preview-change-arrow'>→</span><span>${previewValueText(change.after)}</span></div><div class='preview-change-path'>${escapeHtml(change.path||'')}</div></div>`;}
+function renderPreviewGroups(changes,tone,emptyText){if(!(changes||[]).length) return `<div class='preview-empty'>${emptyText}</div>`; const groups={}; (changes||[]).forEach(change=>{const section=String(change.path||'').split('.')[0]||'other'; if(!groups[section]) groups[section]=[]; groups[section].push(change);}); return Object.entries(groups).map(([section,items])=>`<div class='preview-group'><div class='preview-group-title'>${previewSectionLabelMap[section]||section}</div><div class='preview-change-grid'>${items.map(item=>renderPreviewChangeCard(item,tone)).join('')}</div></div>`).join('');}
+async function handleWsMessage(msg){const t=msg.type,p=msg.payload||msg; if(t==='server_state'){const currentConfig=el('configSelect')?.value||''; const currentScenario=el('scenarioSelect')?.value||''; const currentExperiment=el('experimentSelect')?.value||''; populateSelect('configSelect',p.available_configs||{},p.current_request?.config_name||currentConfig||'spatial_network_recommended'); populateSelect('scenarioSelect',p.available_scenarios||[],p.current_request?.scenario_name||currentScenario||'baseline'); populateSelect('experimentSelect',experimentCandidates.length?experimentCandidates:[''],currentExperiment||''); updateEditorDefaults(p.editor_defaults||{}); if(!editorDefaultsLoaded&&!editorDirty.size) applyEditorDefaults(editorDefaults); masterCompileSummary=p.master_compile_summary||null; renderMasterCompileSummary(); setPlatformStatus(p.status||'idle',p.status||'idle'); if(p.last_preview) renderPreview(p.last_preview); if(p.last_report) renderReportStatus(p.last_report);} else if(t==='scenario_preview'){renderPreview(p);} else if(t==='training_started'){resetStreamPlayback(); setPlatformStatus('训练运行中','running'); renderTrace(); renderCurve(); renderStrategy();} else if(t==='episode_stream_started'){const nextStream={trace:[],network:p.network||emptyTrace().network,summary:{},episode:p?.stream?.episode??null,phase:p?.stream?.phase??''}; traces.stream=nextStream; streamEpisodes.push(nextStream); streamEpisodeIndex=Math.max(0,streamEpisodes.length-1); mode='stream'; streamPlaybackPrimed=false; el('traceMode').value='stream'; index=0; renderTrace();} else if(t==='episode_step'){const s=ensureStream(p); if(p.step) s.trace.push(p.step); streamEpisodeIndex=Math.max(0,streamEpisodes.length-1); index=Math.max(0,s.trace.length-1); renderTrace();} else if(t==='episode_stream_completed'){const s=ensureStream(p); s.summary=p.summary||{}; streamEpisodeIndex=Math.max(0,streamEpisodes.length-1); renderTrace();} else if(['training_progress','training_completed','platform_training_done'].includes(t)){setPlatformStatus(t.includes('completed')||t==='platform_training_done'?'训练完成':'训练运行中',t.includes('completed')||t==='platform_training_done'?'idle':'running'); await refreshAll();} else if(t==='report_exported'){renderReportStatus(p);} else if(t==='error'){setPlatformStatus(p.message||'error','bad');}}
+function renderPreview(p){const s=p.snapshot||{},tasks=p.task_types||s.task_types||[],scenarioChanges=p.scenario_changes||[],overrideChanges=p.override_changes||[]; const scenarioLabel=scenarioNameMap[p.request?.scenario_name]||p.request?.scenario_name||''; const configLabel=configNameMap[p.request?.config_name]||p.request?.config_name||''; const pills=[`<span class='pill'>配置：${escapeHtml(configLabel)}</span>`,`<span class='pill'>情景：${escapeHtml(scenarioLabel)}</span>`,`<span class='pill'>基础需求率 ${fmt(s.simulation?.base_need_rate??0,2)}</span>`,`<span class='pill'>报销比例 ${fmt(s.environment?.reimbursement_rate??0,2)}</span>`,`<span class='pill'>覆盖底线 ${fmt(s.constraints?.minimum_coverage_ratio??0,2)}</span>`,`<span class='pill'>公平底线 ${fmt(s.constraints?.fairness_floor??0,2)}</span>`,`<span class='pill'>任务类型数 ${tasks.length}</span>`,`<span class='pill'>村庄 ${Number(p.villages??0)}</span>`,`<span class='pill'>枢纽 ${Number(p.hubs??0)}</span>`,`<span class='pill'>医院 ${Number(p.hospitals??0)}</span>`].join(''); el('previewSummary').innerHTML=`<div class='preview-shell'><div class='preview-pills'>${pills}</div><div class='preview-grid'><div class='preview-panel scenario'><div class='preview-panel-head'><div class='preview-panel-title'>情景实际改动</div><div class='preview-panel-count'>${scenarioChanges.length} 项</div></div>${renderPreviewGroups(scenarioChanges,'scenario','当前情景未相对所选配置改动任何字段。')}</div><div class='preview-panel override'><div class='preview-panel-head'><div class='preview-panel-title'>手动覆盖字段</div><div class='preview-panel-count'>${overrideChanges.length} 项</div></div>${renderPreviewGroups(overrideChanges,'override','当前页面没有产生额外覆盖变化。')}</div></div></div>`;}
+function renderReportStatus(p){if(!p){el('reportStatus').innerHTML=''; return;} el('reportStatus').innerHTML=[`<div class='pill'>报告目录 ${p.report_dir||''}</div>`,p.report_html?`<div><a href='${toRelativeLink(p.report_html)}' target='_blank'>打开 HTML 报告</a></div>`:'',p.report_md?`<div><a href='${toRelativeLink(p.report_md)}' target='_blank'>打开 Markdown 报告</a></div>`:'',p.report_json?`<div><a href='${toRelativeLink(p.report_json)}' target='_blank'>打开 JSON 报告</a></div>`:''].join('');}
+function isFromMasterConfig(){const v=el('configSelect')?.value||''; return v==='spatial_network_from_master'||v==='from_master';}
+function renderMasterCompileSummary(){const panel=el('masterCompilePanel'),body=el('masterCompileBody'); if(!panel||!body) return; if(!isFromMasterConfig()){panel.style.display='none'; body.innerHTML=''; return;} panel.style.display='block'; if(!masterCompileSummary){body.innerHTML=`<div class='muted'>未检测到主表编译摘要。请先生成 <code>outputs/compile_reports/parameter_master_to_toml.md</code> 与 <code>configs/spatial_network_from_master.toml</code>。</div>`; return;} const s=masterCompileSummary,network=s.network_counts||{},stats=(s.source_counts||[]).map(item=>`<div class='compile-stat'><div class='label'>${item.label||item.key}</div><div class='value'>${item.count??0}</div><div class='muted'>${item.description||''}</div></div>`).join(''),chips=[['村庄',network.villages],['枢纽',network.hubs],['医院',network.hospitals],['航线',network.edges],['任务类型',network.task_types]].map(([label,value])=>`<span class='compile-chip'>${label} ${value??0}</span>`).join(''),notes=(s.notes||[]).map(note=>`<li>${note}</li>`).join(''); body.innerHTML=[`<div class='compile-headline'>${s.headline||''}</div>`,stats?`<div class='compile-stats'>${stats}</div>`:'',chips?`<div class='compile-chip-row'>${chips}</div>`:'',`<div class='compile-paths'><div class='compile-path'><div class='label'>输入工作簿</div><code>${s.workbook_path||''}</code></div><div class='compile-path'><div class='label'>编译配置</div><code>${s.compiled_config_path||''}</code></div><div class='compile-path'><div class='label'>编译报告</div><code>${s.compile_report_path||''}</code></div></div>`,notes?`<ul class='compile-note-list'>${notes}</ul>`:''].join('');}
+async function ensureScenarioLoaded(){
+  const select=el('experimentSelect');
+  const preferred=experimentCandidates.find(x=>String(x||'').includes('scenario_batch'))||experimentCandidates[0]||'';
+  let p=select?.value||'';
+  if(select&&preferred&&!select.dataset.userPicked&&p!==preferred){
+    const matched=[...select.options].find(option=>option.value===preferred);
+    if(matched){select.value=preferred; p=preferred;}
+  }
+  if(!p) p=preferred;
+  if(!p){scenarioData=null; if(el('scenarioSource')) el('scenarioSource').textContent=''; return;}
+  try{
+    scenarioData=await fetchJson(p);
+    const clean=p.replace('../','outputs/');
+    if(el('scenarioSource')) el('scenarioSource').textContent='数据来源：'+clean;
+  }catch{
+    scenarioData=null;
+    if(el('scenarioSource')) el('scenarioSource').textContent='';
+  }
+}
+function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]||ch));}
+function safeMean(values){const nums=(values||[]).map(v=>Number(v)).filter(v=>Number.isFinite(v)); return nums.length?nums.reduce((sum,v)=>sum+v,0)/nums.length:0;}
+function serviceRateOf(node){const demand=Number(node?.last_demand??0),served=Number(node?.last_served??0); return demand>1e-9?served/demand:0;}
+function groupPopulation(nodes){return (nodes||[]).reduce((sum,node)=>sum+Number(node?.population??0),0);}
+function groupTraditionalTime(nodes){return safeMean((nodes||[]).map(node=>Number(node?.traditional_time??0)));}
+function policyScenarioRows(){const rows=scenarioData?.scenario_summary||[]; return {baseline:rows.find(row=>row.scenario==='baseline')||null,policy:rows.find(row=>row.scenario==='policy_push')||null};}
+function policyScenarioDelta(key){const rows=policyScenarioRows(); return rows.baseline&&rows.policy?metricValue(rows.policy,key,'relative',rows.baseline):null;}
+async function refreshAll(){try{const [m,l,b]=await Promise.all([fetchJson(metricsPath),fetchJson(latestTracePath),fetchJson(bestTracePath)]); metricsData=m; traces.latest=l; traces.best=b; el('updateLabel').textContent=`最近刷新：${new Date().toLocaleTimeString()}`; await ensureScenarioLoaded(); renderSummary(); renderCurve(); renderTrace(); renderStrategy(); renderScenario();}catch(err){console.error(err);}}
+function renderSummary(){
+  if(!metricsData?.history?.length){el('summaryCards').innerHTML=''; return;}
+  const latest=metricsData.history.at(-1);
+  const exitFlag=Boolean(traces.best?.summary?.enterprise_exit??false);
+  const policyRows=policyScenarioRows();
+  const policyReady=Boolean(policyRows.baseline&&policyRows.policy);
+  const farmerWelfareRaw=policyReady?policyScenarioDelta('farmer_welfare'):null;
+  const levelCards=[
+    {kicker:'Welfare',title:'系统综合福利',value:fmt(latest.welfare_return,1),note:'综合反映企业、医院与农户在当前训练轮次的总体收益。'},
+    {kicker:'Health',title:'平均健康水平',value:fmt(latest.final_average_health),note:'用于刻画慢病管理与健康改善的整体效果。'},
+    {kicker:'Service',title:'平均服务率',value:fmt(latest.average_service_rate),note:'表示需求被满足的比例，衡量网络运行效率。'},
+    {kicker:'Coverage',title:'网络覆盖率',value:fmt(latest.final_network_coverage),note:'表征低空健康服务网络的可达范围与覆盖深度。'},
+    {kicker:'Medical',title:'慢病管理率',value:fmt(latest.average_chronic_management_rate??0),note:'衡量慢病复诊与随访需求被稳定承接的程度。'},
+    {kicker:'Risk',title:'重症外流率',value:fmt(latest.average_severe_outflow_rate??0),note:'反映健康管理失效后向高层级医疗外流的压力。'},
+    {kicker:'Equity',title:'公平性指数',value:fmt(latest.average_fairness??0),note:'反映不同区域之间服务获得的均衡程度。'},
+    {kicker:'Enterprise',title:'企业存活状态',value:exitFlag?'退出触发':'稳定运行',note:'结合退出规则与训练结果判断供给端持续运营能力。'}
+  ];
+  const policyCards=[
+    {kicker:'Service',title:'服务率变化',raw:policyReady?policyScenarioDelta('service'):null,metricKey:'service',note:'政策推动情景相对基准情景的平均服务率变化。'},
+    {kicker:'Health',title:'健康水平变化',raw:policyReady?policyScenarioDelta('health'):null,metricKey:'health',note:'政策推动情景相对基准情景的平均健康变化。'},
+    {kicker:'Life',title:'村民寿命提升',raw:policyReady?policyScenarioDelta('life_pop'):null,metricKey:'life_pop',note:'政策推动情景相对基准情景的总体预期寿命变化。'},
+    {kicker:'Farmer',title:'农户福利提升',raw:farmerWelfareRaw,metricKey:'farmer_welfare',note:farmerWelfareRaw===null?'若当前未显示，请确认“实验摘要”已切换到 scenario_batch；新版摘要已写入农户福利单列字段。':'政策推动情景相对基准情景的农户福利变化。'},
+    {kicker:'Fiscal',title:'政府财政节约',raw:policyReady?policyScenarioDelta('fiscal_saving'):null,metricKey:'fiscal_saving',note:'政策推动情景相对基准情景的净财政节约变化。'}
+  ].map(card=>({...card,value:card.raw===null?'未载入':metricText(card.raw,card.metricKey)}));
+  const renderCards=(cards,tone)=>`<div class='insight-grid'>${cards.map(card=>`<div class='insight-card ${tone}'><div class='insight-kicker'>${card.kicker}</div><div class='insight-title'>${card.title}</div><div class='insight-value ${tone==='counterfactual'&&card.raw!==null?deltaClass(card.raw,card.metricKey):''}'>${card.value}</div><div class='insight-note'>${card.note}</div></div>`).join('')}</div>`;
+  let policyNote='以下五项为政策推动情景在 MARL 算法下相对基准情景的估算差值，用于展示政策情景相对基准情景的结果变化。';
+  if(!policyReady){
+    policyNote='当前未载入 scenario_batch 摘要，请在“实验摘要”中切换到 scenario_batch。';
+  }else if(farmerWelfareRaw===null){
+    policyNote+=' 如果农户福利卡片仍未显示，通常是页面缓存未刷新，而不是模型或批量实验缺字段。';
+  }
+  el('summaryCards').innerHTML=`<div class='insight-section'><div class='insight-section-head'><div><div class='insight-section-title'>当前运行水平</div><div class='insight-section-note'>用于展示当前训练轮次下系统效率、健康、公平与运营稳定性的实际水平值。</div></div></div>${renderCards(levelCards,'level')}</div><div class='insight-section'><div class='insight-section-head'><div><div class='insight-section-title'>政策效应估算</div><div class='insight-section-note'>${policyNote}</div></div></div>${renderCards(policyCards,'counterfactual')}</div>`;
+}
+function renderCurve(){
+  const svg=el('curveSvg'),trace=currentTrace(),history=metricsData?.history||[];
+  if(!history.length){svg.innerHTML=''; return;}
+  const episodeLimit=Number(trace?.episode??0);
+  const traceSteps=trace?.trace||[];
+  const stepProgress=traceSteps.length>1?Math.max(0,Math.min(index,traceSteps.length-1))/(traceSteps.length-1):1;
+  const visibleCount=episodeLimit>0?Math.max(history.filter(item=>Number(item?.episode??0)<=episodeLimit).length,1):history.length;
+  const episodeIndex=episodeLimit>0?history.findIndex(item=>Number(item?.episode??0)===episodeLimit):-1;
+  const w=1200,hh=240,px=50,py=20;
+  const episodeUpper=Math.max(Number(metricsData?.training_config?.episodes??0),...history.map(item=>Number(item?.episode??0)),1);
+  const curvePoints=series=>{const values=(series||[]).map(v=>Number(v??0)); if(!values.length) return []; const min=Math.min(...values),max=Math.max(...values),range=Math.max(max-min,1e-6); return values.map((value,i)=>[px+(w-2*px)*(Math.max(0,Math.min(Number(history[i]?.episode??(i+1)),episodeUpper))/episodeUpper),hh-py-(hh-2*py)*((value-min)/range)]);};
+  const scoreSeries=history.map(x=>Number(x.score??0));
+  const healthSeries=history.map(x=>Number(x.final_average_health??0));
+  const serviceSeries=history.map(x=>Number(x.average_service_rate??0));
+  const fairnessSeries=history.map(x=>Number(x.average_fairness??0));
+  const scorePts=curvePoints(scoreSeries),healthPts=curvePoints(healthSeries),servicePts=curvePoints(serviceSeries),fairnessPts=curvePoints(fairnessSeries);
+  const activeScorePts=episodeIndex>=0?partialPolylinePoints(scorePts,episodeIndex,traceSteps.length?stepProgress:1):normalizedPoints(scoreSeries,w,hh,px,py,visibleCount),activeHealthPts=episodeIndex>=0?partialPolylinePoints(healthPts,episodeIndex,traceSteps.length?stepProgress:1):normalizedPoints(healthSeries,w,hh,px,py,visibleCount),activeServicePts=episodeIndex>=0?partialPolylinePoints(servicePts,episodeIndex,traceSteps.length?stepProgress:1):normalizedPoints(serviceSeries,w,hh,px,py,visibleCount),activeFairnessPts=episodeIndex>=0?partialPolylinePoints(fairnessPts,episodeIndex,traceSteps.length?stepProgress:1):normalizedPoints(fairnessSeries,w,hh,px,py,visibleCount);
+  const marker=activeScorePts.at(-1)||null,markerEpisode=episodeIndex>=0?(history[episodeIndex]?.episode??null):(history[Math.max(0,visibleCount-1)]?.episode??null),hasFuture=episodeIndex>=0?(episodeIndex<history.length-1||stepProgress<0.999):(visibleCount<history.length);
+  const activeEndpoints=[
+    {point:activeScorePts.at(-1)||null,color:'#38bdf8'},
+    {point:activeHealthPts.at(-1)||null,color:'#22c55e'},
+    {point:activeServicePts.at(-1)||null,color:'#f59e0b'},
+    {point:activeFairnessPts.at(-1)||null,color:'#e879f9'},
+  ].filter(item=>item.point);
+  let html=[`<defs><linearGradient id='curveMaskEdge' x1='0' y1='0' x2='1' y2='0'><stop offset='0%' stop-color='#f8fafc' stop-opacity='0.88'></stop><stop offset='40%' stop-color='#94a3b8' stop-opacity='0.28'></stop><stop offset='100%' stop-color='#0f172a' stop-opacity='0'></stop></linearGradient><filter id='curveCursorGlow' x='-120%' y='-120%' width='340%' height='340%'><feDropShadow dx='0' dy='0' stdDeviation='4' flood-color='#e2e8f0' flood-opacity='0.34'></feDropShadow></filter></defs><rect x='0' y='0' width='${w}' height='${hh}' rx='12' fill='#111827'></rect>`];
+  if(hasFuture){
+    html.push(polyline(scorePts,'#38bdf8',3,0.18),polyline(healthPts,'#22c55e',3,0.18),polyline(servicePts,'#f59e0b',3,0.18),polyline(fairnessPts,'#e879f9',3,0.18));
+    if(marker){
+      const shadowX=Math.min(Math.max(marker[0]+8,px),w-px),shadowWidth=Math.max((w-px)-shadowX,0),edgeX=Math.max(marker[0]-2,px);
+      if(shadowWidth>0){
+        html.push(`<rect x='${shadowX}' y='12' width='${shadowWidth}' height='${hh-24}' rx='12' fill='#020617' fill-opacity='0.56'></rect>`);
+        html.push(`<rect x='${edgeX}' y='12' width='28' height='${hh-24}' fill='url(#curveMaskEdge)' opacity='0.96'></rect>`);
+      }
+    }
+  }
+  html.push(polyline(activeScorePts,'#38bdf8',11,0.08),polyline(activeHealthPts,'#22c55e',11,0.08),polyline(activeServicePts,'#f59e0b',11,0.08),polyline(activeFairnessPts,'#e879f9',11,0.08));
+  html.push(polyline(activeScorePts,'#38bdf8',5.5,0.98),polyline(activeHealthPts,'#22c55e',5.5,0.98),polyline(activeServicePts,'#f59e0b',5.5,0.98),polyline(activeFairnessPts,'#e879f9',5.5,0.98));
+  if(marker){
+    const labelText=markerEpisode!==null?`当前轮次 ${markerEpisode}`:'当前轮次';
+    const labelWidth=Math.max(124,labelText.length*13+28),labelX=Math.min(Math.max(marker[0]-labelWidth/2,18),w-labelWidth-18);
+    html.push(`<line x1='${marker[0]}' y1='20' x2='${marker[0]}' y2='220' stroke='#f8fafc' stroke-opacity='0.76' stroke-width='3' stroke-dasharray='10 8' filter='url(#curveCursorGlow)'><animate attributeName='stroke-dashoffset' values='0;-18' dur='0.9s' repeatCount='indefinite'></animate><animate attributeName='stroke-opacity' values='0.82;0.38;0.82' dur='1.1s' repeatCount='indefinite'></animate></line>`);
+    html.push(`<g filter='url(#curveCursorGlow)'><rect x='${labelX}' y='12' width='${labelWidth}' height='28' rx='14' fill='#e2e8f0' fill-opacity='0.96'></rect><text x='${labelX+14}' y='31' fill='#0f172a' font-size='13' font-weight='800'>${labelText}</text></g>`);
+    html.push(...activeEndpoints.map(({point,color})=>`<g filter='url(#curveCursorGlow)'><circle cx='${point[0]}' cy='${point[1]}' r='9' fill='${color}' fill-opacity='0.12'><animate attributeName='r' values='8;15;8' dur='1.15s' repeatCount='indefinite'></animate><animate attributeName='fill-opacity' values='0.34;0.04;0.34' dur='1.15s' repeatCount='indefinite'></animate></circle><circle cx='${point[0]}' cy='${point[1]}' r='5.4' fill='${color}' stroke='#f8fafc' stroke-width='2.2'></circle></g>`));
+  }
+  svg.innerHTML=html.join('');
+}
+function renderStrategy(){
+  const svg=el('strategySvg'),p=currentTrace(),t=p.trace||[];
+  if(!t.length){svg.innerHTML=''; return;}
+  const visibleCount=Math.min(Math.max(index+1,1),t.length),w=1200,hh=240,px=50,py=20;
+  const priceSeries=t.map(x=>Number(x.enterprise_action?.price??0));
+  const capacitySeries=t.map(x=>Number(x.enterprise_action?.capacity_scale??0));
+  const referralSeries=t.map(x=>Number(x.medical_action?.referral_acceptance??0));
+  const integrationSeries=t.map(x=>Number(x.medical_action?.integration_effort??0));
+  const pricePts=strategyPoints(priceSeries,w,hh,px,py),capacityPts=strategyPoints(capacitySeries,w,hh,px,py),referralPts=strategyPoints(referralSeries,w,hh,px,py),integrationPts=strategyPoints(integrationSeries,w,hh,px,py);
+  const activePricePts=strategyPoints(priceSeries,w,hh,px,py,visibleCount),activeCapacityPts=strategyPoints(capacitySeries,w,hh,px,py,visibleCount),activeReferralPts=strategyPoints(referralSeries,w,hh,px,py,visibleCount),activeIntegrationPts=strategyPoints(integrationSeries,w,hh,px,py,visibleCount);
+  const marker=activePricePts.at(-1)||null,currentStep=t[Math.max(0,visibleCount-1)]?.t??visibleCount;
+  let html=[`<rect x='0' y='0' width='${w}' height='${hh}' rx='12' fill='#111827'></rect>`];
+  if(visibleCount<t.length){
+    html.push(polyline(pricePts,'#38bdf8',3,0.18),polyline(capacityPts,'#22c55e',3,0.18),polyline(referralPts,'#f59e0b',3,0.18),polyline(integrationPts,'#ef4444',3,0.18));
+  }
+  html.push(polyline(activePricePts,'#38bdf8'),polyline(activeCapacityPts,'#22c55e'),polyline(activeReferralPts,'#f59e0b'),polyline(activeIntegrationPts,'#ef4444'));
+  if(marker){
+    html.push(`<line x1='${marker[0]}' y1='20' x2='${marker[0]}' y2='220' stroke='#f8fafc' stroke-opacity='0.35' stroke-width='2' stroke-dasharray='8 8'></line><text x='${Math.min(marker[0]+10,w-78)}' y='34' fill='#e2e8f0' font-size='13' font-weight='700'>第 ${currentStep} 期</text>`);
+  }
+  svg.innerHTML=html.join('');
+}
+function renderTrace(){if(mode==='stream'){const episodes=streamPlaybackEpisodes(); if(episodes.length&&!streamPlaybackPrimed) streamEpisodeIndex=Math.max(0,episodes.length-1);} const p=currentTrace(),t=p.trace||[],s=t[index]||null; el('stepSlider').max=Math.max(t.length,1); el('stepSlider').value=t.length?index+1:1; el('stepLabel').textContent=s?`第 ${s.t} 期`:'暂无回放'; el('traceLabel').textContent=[mode==='best'?'最佳回放':(mode==='stream'?'实时流':'最新回放'),p.episode?`轮次：${p.episode}`:'',p.phase?`阶段：${p.phase}`:'',t.length?`期数：${Math.min(index+1,t.length)}/${t.length}`:''].filter(Boolean).join(' · '); renderCurve(); renderStrategy(); renderNetwork(s,p.network||{}); renderFairness(s); renderStepMetrics(s,p.summary||{}); renderTaskRows(s); renderVillageRows(s);}
+function networkLaneDefs(){
+  return [
+    {modeLabel:'模式一',title:'模式一：杭州市余杭区黄湖镇',routeBadge:'村庄级下沉',sourceTitle:'村庄需求节点',collectLabel:'村镇常规收集',enterpriseLabel:'无人机企业（运营驻扎地）',hubBadge:'血样配送枢纽',hubTitle:'无人机中转点',hubDesc:'地勤、机巢、电池调度中心',flightLabel:'无人机企业执飞',hospitalTitle:'黄湖镇社区卫生服务中心',nodeType:'村庄',accent:'#047857',chip:'#d1fae5',border:'#a7f3d0',sourceProfiles:[{name:'王位山村',trait:'高海拔盘山路，急危送检最难'},{name:'赐璧村',trait:'留守老人多，慢病体检配药需求大'},{name:'虎山村',trait:'居住分散，居家养老依赖高'},{name:'清波村',trait:'水系绕行多，基层检测设备不足'},{name:'青山村',trait:'健康意识强，新物流接受快'}]},
+    {modeLabel:'模式二',title:'模式二：浙江省丽水市松阳县',routeBadge:'乡镇级下沉',sourceTitle:'乡镇需求节点',collectLabel:'乡镇集中汇聚',enterpriseLabel:'无人机企业（运营驻扎地）',hubBadge:'血样配送枢纽',hubTitle:'无人机中转点',hubDesc:'区域性集散升降坪',flightLabel:'无人机企业执飞',hospitalTitle:'松阳县人民医院',nodeType:'乡镇',accent:'#1d4ed8',chip:'#dbeafe',border:'#bfdbfe',sourceProfiles:[{name:'玉岩镇',trait:'深山偏远，急危重症送检痛点突出'},{name:'新兴镇',trait:'茶季劳作强，下山就医时间少'},{name:'大东坝镇',trait:'山路蜿蜒，老年群体较大'},{name:'象溪镇',trait:'带状分布较长，远端就医距离远'},{name:'古市镇',trait:'人口基数大，样本需批量转运'}]},
+  ];
+}
+function renderNetwork(step,network){
+  const svg=el('networkSvg');
+  if(!step){svg.innerHTML=''; return;}
+  void network;
+  const routeShare=Number(step.route_activation_share??0);
+  const reserveRatio=Number(step.reserve_capacity_ratio??0);
+  const loadFactor=Number(step.load_factor??0);
+  const chronicRate=Number(step.chronic_management_rate??0);
+  const countyRetention=Number(step.county_retention_rate??0);
+  const w=1360,h=1160;
+  const laneHeight=520,laneGap=24;
+  const laneDefs=networkLaneDefs();
+  const wrapByChars=(text,maxChars)=>{const s=String(text||''); const lines=[]; for(let i=0;i<s.length;i+=maxChars) lines.push(s.slice(i,i+maxChars)); return lines.length?lines:[''];};
+  const svgText=(x,y,lines,size,fill,weight='700',anchor='start',lineHeight=1.24)=>`<text x='${x}' y='${y}' text-anchor='${anchor}' fill='${fill}' font-size='${size}' font-weight='${weight}' font-family="Arial,'Microsoft YaHei',sans-serif">${lines.map((line,i)=>`<tspan x='${x}' dy='${i===0?0:Math.round(size*lineHeight)}'>${escapeHtml(line)}</tspan>`).join('')}</text>`;
+  const pillWidth=(text,minWidth,perChar=14.4,padding=20)=>Math.max(minWidth, String(text||'').length*perChar+padding);
+  svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
+  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+  let html=[`<defs><marker id='arrowSlate' viewBox='0 0 10 10' refX='8.4' refY='5' markerWidth='8.4' markerHeight='8.4' orient='auto-start-reverse'><path d='M 0 0 L 10 5 L 0 10 z' fill='#94a3b8'></path></marker><marker id='arrowAmber' viewBox='0 0 10 10' refX='8.4' refY='5' markerWidth='8.4' markerHeight='8.4' orient='auto-start-reverse'><path d='M 0 0 L 10 5 L 0 10 z' fill='#f59e0b'></path></marker><filter id='laneShadow' x='-20%' y='-20%' width='140%' height='140%'><feDropShadow dx='0' dy='8' stdDeviation='12' flood-color='#94a3b8' flood-opacity='0.14'/></filter></defs>`];
+  laneDefs.forEach((lane,index)=>{
+    const top=28+index*(laneHeight+laneGap);
+    const sourceX=36,sourceY=top+82,sourceW=282,sourceH=418;
+    const hubX=470,hubY=top+144,hubW=278,hubH=292;
+    const hospitalX=898,hospitalY=top+144,hospitalW=370,hospitalH=292;
+    const midY=top+292;
+    const routeBadgeW=pillWidth(lane.routeBadge,132,14,24);
+    const collectW=pillWidth(lane.collectLabel,92,13.6,18);
+    const flightW=pillWidth(lane.flightLabel,98,13.6,18);
+    const enterpriseW=pillWidth(lane.enterpriseLabel,176,12.6,24);
+    const arrowOneStart=sourceX+sourceW+24,arrowOneEnd=hubX-22,arrowOneMid=(arrowOneStart+arrowOneEnd)/2;
+    const arrowTwoStart=hubX+hubW+18,arrowTwoEnd=hospitalX-26,arrowTwoMid=(arrowTwoStart+arrowTwoEnd)/2;
+    html.push(
+      `<rect x='14' y='${top}' width='1292' height='${laneHeight}' rx='28' fill='#ffffff' stroke='${lane.border}' stroke-width='1.8' filter='url(#laneShadow)'></rect>`,
+      `<circle cx='58' cy='${top+42}' r='18' fill='${lane.accent}'></circle>`,
+      `<text x='58' y='${top+48}' text-anchor='middle' fill='#ffffff' font-size='15' font-weight='800' font-family="Arial,'Microsoft YaHei',sans-serif">${index+1}</text>`,
+      svgText(88,top+50,[lane.title],27,'#0f172a','800'),
+      `<rect x='${1246-routeBadgeW}' y='${top+24}' width='${routeBadgeW}' height='30' rx='15' fill='${lane.chip}' stroke='${lane.border}'></rect>`,
+      `<text x='${1246-routeBadgeW/2}' y='${top+44}' text-anchor='middle' fill='${lane.accent}' font-size='14' font-weight='800' font-family="Arial,'Microsoft YaHei',sans-serif">${lane.routeBadge}</text>`,
+      `<rect x='${sourceX}' y='${sourceY}' width='${sourceW}' height='${sourceH}' rx='26' fill='#ffffff' stroke='${lane.border}' stroke-width='2'></rect>`,
+      svgText(sourceX+22,sourceY+42,[lane.sourceTitle],23,lane.accent,'800')
+    );
+    lane.sourceProfiles.forEach((item,itemIndex)=>{
+      const itemX=sourceX+16,itemY=sourceY+64+itemIndex*68,itemW=sourceW-32,itemH=58;
+      const traitLines=wrapByChars(item.trait,13).slice(0,2);
+      html.push(
+        `<rect x='${itemX}' y='${itemY}' width='${itemW}' height='${itemH}' rx='14' fill='#f8fafc' stroke='#e2e8f0'></rect>`,
+        svgText(itemX+14,itemY+22,[item.name],16,'#111827','800'),
+        svgText(itemX+14,itemY+41,traitLines,13,'#475569','700','start',1.12)
+      );
+    });
+    html.push(
+      `<line x1='${arrowOneStart}' y1='${midY}' x2='${arrowOneEnd}' y2='${midY}' stroke='#94a3b8' stroke-width='4.8' stroke-dasharray='10 8' stroke-linecap='round' marker-end='url(#arrowSlate)'></line>`,
+      `<rect x='${Math.round(arrowOneMid-collectW/2)}' y='${midY-80}' width='${collectW}' height='28' rx='10' fill='#ffffff' stroke='#cbd5e1'></rect>`,
+      `<text x='${Math.round(arrowOneMid)}' y='${midY-61}' text-anchor='middle' fill='#475569' font-size='13.8' font-weight='800' font-family="Arial,'Microsoft YaHei',sans-serif">${lane.collectLabel}</text>`,
+      `<rect x='${Math.round(hubX+(hubW-enterpriseW)/2)}' y='${hubY-46}' width='${enterpriseW}' height='30' rx='15' fill='#1e293b'></rect>`,
+      `<text x='${hubX+hubW/2}' y='${hubY-26}' text-anchor='middle' fill='#ffffff' font-size='12.8' font-weight='800' font-family="Arial,'Microsoft YaHei',sans-serif">${lane.enterpriseLabel}</text>`,
+      `<rect x='${hubX}' y='${hubY}' width='${hubW}' height='${hubH}' rx='30' fill='#ffffff' stroke='#fbbf24' stroke-width='2.2'></rect>`,
+      `<rect x='${hubX+54}' y='${hubY+18}' width='${hubW-108}' height='28' rx='14' fill='#fef3c7' stroke='#fde68a'></rect>`,
+      `<text x='${hubX+hubW/2}' y='${hubY+37}' text-anchor='middle' fill='#b45309' font-size='13.5' font-weight='800' font-family="Arial,'Microsoft YaHei',sans-serif">${lane.hubBadge}</text>`,
+      `<text x='${hubX+hubW/2}' y='${hubY+98}' text-anchor='middle' fill='#d97706' font-size='37' font-weight='800' font-family="Arial,'Microsoft YaHei',sans-serif">✈</text>`,
+      svgText(hubX+hubW/2,hubY+130,[lane.hubTitle],23,'#111827','800','middle'),
+      svgText(hubX+hubW/2,hubY+168,wrapByChars(lane.hubDesc,10).slice(0,2),14,'#64748b','700','middle',1.22),
+      svgText(hubX+hubW/2,hubY+228,[`航线激活 ${fmt(routeShare,2)}`,`备用容量 ${fmt(reserveRatio,2)} · 负载 ${fmt(loadFactor,2)}`],13.2,'#334155','800','middle',1.18),
+      `<line x1='${arrowTwoStart}' y1='${midY}' x2='${arrowTwoEnd}' y2='${midY}' stroke='#f59e0b' stroke-width='4.9' stroke-linecap='round' marker-end='url(#arrowAmber)'></line>`,
+      `<rect x='${Math.round(arrowTwoMid-flightW/2)}' y='${midY-80}' width='${flightW}' height='28' rx='10' fill='#ffffff' stroke='#fcd34d'></rect>`,
+      `<text x='${Math.round(arrowTwoMid)}' y='${midY-61}' text-anchor='middle' fill='#d97706' font-size='13.8' font-weight='800' font-family="Arial,'Microsoft YaHei',sans-serif">${lane.flightLabel}</text>`,
+      `<rect x='${hospitalX}' y='${hospitalY}' width='${hospitalW}' height='${hospitalH}' rx='30' fill='#ffffff' stroke='#fecdd3' stroke-width='2.2'></rect>`,
+      `<rect x='${hospitalX+92}' y='${hospitalY+18}' width='${hospitalW-184}' height='28' rx='14' fill='#ffe4e6' stroke='#fecdd3'></rect>`,
+      `<text x='${hospitalX+hospitalW/2}' y='${hospitalY+37}' text-anchor='middle' fill='#e11d48' font-size='13.5' font-weight='800' font-family="Arial,'Microsoft YaHei',sans-serif">核心医疗点</text>`,
+      `<text x='${hospitalX+hospitalW/2}' y='${hospitalY+100}' text-anchor='middle' fill='#e11d48' font-size='38' font-weight='800' font-family="Arial,'Microsoft YaHei',sans-serif">✚</text>`,
+      svgText(hospitalX+hospitalW/2,hospitalY+132,wrapByChars(lane.hospitalTitle,12).slice(0,2),22,'#111827','800','middle',1.16),
+      svgText(hospitalX+hospitalW/2,hospitalY+226,[`慢病管理 ${fmt(chronicRate,2)}`,`县域留诊 ${fmt(countyRetention,2)}`],13.2,'#334155','800','middle',1.18)
+    );
+  });
+  svg.innerHTML=html.join('');
+}
+function renderFairness(step){
+  const svg=el('fairnessSvg');
+  if(!step){svg.innerHTML=''; if(el('constraintSummary')) el('constraintSummary').innerHTML=''; return;}
+  const villages=step.villages||[];
+  const groups=[
+    {title:'余杭黄湖链路',badge:'村庄级下沉',tone:'#047857',soft:'#ecfdf5',border:'#a7f3d0',nodes:villages.slice(0,2)},
+    {title:'松阳链路',badge:'乡镇级下沉',tone:'#1d4ed8',soft:'#eff6ff',border:'#bfdbfe',nodes:villages.slice(2)}
+  ];
+  const flagMeta={coverage_floor_breached:'覆盖底线',fairness_floor_breached:'公平底线',hospital_redline_breached:'医院容量',remote_floor_breached:'偏远村底线',enterprise_exit_triggered:'企业退出'};
+  const wrapByChars=(text,maxChars)=>{const s=String(text||''); const lines=[]; for(let i=0;i<s.length;i+=maxChars) lines.push(s.slice(i,i+maxChars)); return lines.length?lines:[''];};
+  const svgText=(x,y,lines,size,fill,weight='700',anchor='start',lineHeight=1.24)=>`<text x='${x}' y='${y}' text-anchor='${anchor}' fill='${fill}' font-size='${size}' font-weight='${weight}' font-family="Arial,'Microsoft YaHei',sans-serif">${lines.map((line,i)=>`<tspan x='${x}' dy='${i===0?0:Math.round(size*lineHeight)}'>${escapeHtml(line)}</tspan>`).join('')}</text>`;
+  const w=1360,h=1160;
+  svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
+  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+  let html=[`<defs><filter id='fairShadow' x='-20%' y='-20%' width='140%' height='140%'><feDropShadow dx='0' dy='8' stdDeviation='12' flood-color='#94a3b8' flood-opacity='0.14'/></filter></defs>`];
+  const overview=[['总体公平性',fmt(step.fairness_score)],['覆盖缺口',fmt(step.coverage_gap)],['偏远村服务率',fmt(step.remote_service_rate)],['医院红线超载',fmt(step.hospital_redline_over)]];
+  const overviewX=28,overviewY=18,overviewGap=14,overviewW=315,overviewH=92;
+  overview.forEach(([label,value],idx)=>{
+    const x=overviewX+idx*(overviewW+overviewGap);
+    html.push(
+      `<rect x='${x}' y='${overviewY}' width='${overviewW}' height='${overviewH}' rx='18' fill='#ffffff' stroke='#dbe7f4' filter='url(#fairShadow)'></rect>`,
+      svgText(x+18,overviewY+32,[label],16,'#64748b','700'),
+      svgText(x+overviewW-18,overviewY+60,[value],35,'#17304d','800','end')
+    );
+  });
+  groups.forEach((group,index)=>{
+    const nodes=group.nodes.length?group.nodes:villages;
+    const serviceRates=nodes.map(node=>serviceRateOf(node));
+    const avgService=safeMean(serviceRates);
+    const minService=serviceRates.length?Math.min(...serviceRates):0;
+    const avgHealth=safeMean(nodes.map(node=>node.health));
+    const avgTrust=safeMean(nodes.map(node=>node.trust));
+    const avgTraditional=groupTraditionalTime(nodes);
+    const avgRisk=safeMean(nodes.map(node=>node.risk_weight));
+    const dispersion=serviceRates.length?Math.max(...serviceRates)-Math.min(...serviceRates):0;
+    const note=dispersion>0.25?'链路内部服务差异偏大，需要针对性补偿。':(avgService<0.35?'链路整体服务仍偏弱，需要继续扩容。':'链路运行相对稳定。');
+    const top=126+index*422;
+    const groupX=28,groupW=1304,groupH=394,innerX=52;
+    const metricGap=12,metricW=238,metricH=144,rowOneY=top+88,rowTwoY=top+252,rowTwoGap=16,rowTwoW=392,rowTwoH=112;
+    html.push(
+      `<rect x='${groupX}' y='${top}' width='${groupW}' height='${groupH}' rx='28' fill='#ffffff' stroke='${group.border}' stroke-width='1.8' filter='url(#fairShadow)'></rect>`,
+      `<rect x='${innerX}' y='${top+24}' width='184' height='34' rx='17' fill='${group.soft}' stroke='${group.border}'></rect>`,
+      `<text x='${innerX+92}' y='${top+47}' text-anchor='middle' fill='${group.tone}' font-size='16' font-weight='800' font-family="Arial,'Microsoft YaHei',sans-serif">${group.title}</text>`,
+      svgText(innerX+206,top+47,[group.badge],17,group.tone,'800')
+    );
+    const metricCards=[['平均服务率',fmt(avgService,2)],['最低服务率',fmt(minService,2)],['平均健康',fmt(avgHealth,2)],['平均信任',fmt(avgTrust,2)],['服务离散度',fmt(dispersion,2)]];
+    metricCards.forEach(([label,value],idx)=>{
+      const x=innerX+idx*(metricW+metricGap);
+      html.push(
+        `<rect x='${x}' y='${rowOneY}' width='${metricW}' height='${metricH}' rx='20' fill='${group.soft}' stroke='${group.border}'></rect>`,
+        svgText(x+18,rowOneY+36,[label],16,'#64748b','700'),
+        svgText(x+18,rowOneY+98,[value],42,group.tone,'800')
+      );
+    });
+    const secondaryCards=[['传统就医时间',`${fmt(avgTraditional,1)}h`],['平均风险权重',fmt(avgRisk,2)],['链路判断',note.replace('。','')]];
+    secondaryCards.forEach(([label,value],idx)=>{
+      const x=innerX+idx*(rowTwoW+rowTwoGap);
+      const valueLines=idx===2?wrapByChars(value,18).slice(0,2):[String(value)];
+      html.push(
+        `<rect x='${x}' y='${rowTwoY}' width='${rowTwoW}' height='${rowTwoH}' rx='18' fill='#f8fbff' stroke='#dbe7f4'></rect>`,
+        svgText(x+16,rowTwoY+30,[label],15.5,'#64748b','700'),
+        svgText(x+16,rowTwoY+74,valueLines,idx===2?20:34,'#17304d','800','start',1.15)
+      );
+    });
+  });
+  const flagY=984,flagH=134,flagW=248,flagGap=12;
+  Object.entries(flagMeta).forEach(([key,label],idx)=>{
+    const active=Boolean(step.constraint_flags?.[key]);
+    const x=28+idx*(flagW+flagGap);
+    html.push(
+      `<rect x='${x}' y='${flagY}' width='${flagW}' height='${flagH}' rx='20' fill='${active?'#fff3f1':'#f3fbf5'}' stroke='${active?'#f0b5b0':'#cfe4d5'}' filter='url(#fairShadow)'></rect>`,
+      svgText(x+16,flagY+36,[label],15.2,'#64748b','700'),
+      svgText(x+16,flagY+88,[active?'触发':'正常'],34,active?'#b42318':'#17633c','800')
+    );
+  });
+  svg.innerHTML=html.join('');
+  if(el('constraintSummary')) el('constraintSummary').innerHTML='';
+}
+function renderStepMetrics(step,summary){if(!step){el('stepMetrics').innerHTML=''; return;} const welfare=(Number(step.enterprise_reward||0)+Number(step.medical_reward||0)+Number(step.farmer_reward||0)); el('stepMetrics').innerHTML=[`<div>系统状态：平均健康 ${fmt(step.average_health)} · 覆盖率 ${fmt(step.network_coverage)} · 链路响应时间（小时） ${fmt(step.average_response_time)}</div>`,`<div>扰动环境：天气 ${fmt(step.disturbances?.weather)} · 空域 ${fmt(step.disturbances?.airspace_control)} · 设备 ${fmt(step.disturbances?.device_failure)} · 医疗挤兑 ${fmt(step.disturbances?.medical_surge)}</div>`,`<div>企业策略：容量 ${fmt(step.enterprise_action?.capacity_scale)} · 价格 ${fmt(step.enterprise_action?.price)} · 可靠性投入 ${fmt(step.enterprise_action?.reliability_investment)}</div>`,`<div>医院策略：承接 ${fmt(step.medical_action?.referral_acceptance)} · 协同 ${fmt(step.medical_action?.integration_effort)}</div>`,`<div>经营与健康：企业负载率 ${fmt(step.load_factor)} · 慢病管理率 ${fmt(step.chronic_management_rate)} · 重症外流率 ${fmt(step.severe_outflow_rate)}</div>`,`<div>结果输出：采纳 ${fmt(step.average_adoption)} · 需求 ${fmt(step.total_demand,1)} · 服务 ${fmt(step.total_served,1)} · 未满足 ${fmt(step.total_unmet,1)}</div>`,`<div>福利与约束：当期总福利 ${fmt(welfare,1)} · 平均公平 ${fmt(summary.average_fairness??0)} · 平均覆盖缺口 ${fmt(summary.average_coverage_gap??0)} · 政策成本 ${fmt(summary.policy_cost??0,1)}</div>`].join('');}
+function renderTaskRows(step){el('taskRows').innerHTML=step?Object.entries(step.task_metrics||{}).map(([k,v])=>`<tr><td>${taskNameMap[k]||k}</td><td>${fmt(v.demand,1)}</td><td>${fmt(v.served,1)}</td><td>${fmt(v.service_rate,2)}</td></tr>`).join(''):'';}
+function renderVillageRows(step){
+  if(!step){el('villageRows').innerHTML=''; return;}
+  const rows=networkLaneDefs().flatMap(lane=>lane.sourceProfiles.map(item=>({
+    mode:lane.modeLabel,
+    nodeType:lane.sourceTitle,
+    name:item.name,
+    trait:item.trait,
+    collect:lane.collectLabel,
+    hospital:lane.hospitalTitle,
+  })));
+  el('villageRows').innerHTML=rows.map(row=>`<tr><td>${row.mode}</td><td>${row.nodeType}</td><td>${row.name}</td><td>${row.trait}</td><td>${row.collect}</td><td>${row.hospital}</td></tr>`).join('');
+}
+function setSummaryMode(){const batch=el('summaryModeSelect').value==='batch'; el('summaryPanelTitle').textContent=batch?String.fromCharCode(25209,37327,23454,39564,24773,26223,23545,29031):String.fromCharCode(24403,21069,36816,34892,24577,21183); el('stepMetrics').style.display=batch?'none':'block'; el('batchPanel').style.display=batch?'block':'none'; if(el('scenarioSource')) el('scenarioSource').style.display=batch?'block':'none'; if(el('scenarioNote')) el('scenarioNote').style.display=batch?'block':'none'; if(batch){ensureScenarioLoaded().then(renderScenario);} }
+function hasMetricNumber(v){return v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v));}
+function metricLevelGap(row,key){const m=metricCatalog[key]||{}; if(!hasMetricNumber(row?.[m.levelMarl])||!hasMetricNumber(row?.[m.levelBaseline])) return null; const marl=Number(row[m.levelMarl]), baseline=Number(row[m.levelBaseline]); return m.inverseGap?(baseline-marl):(marl-baseline);}
+function metricWithinValue(row,key){const m=metricCatalog[key]||{}; if(key==='survival'){return hasMetricNumber(row?.[m.marl])&&hasMetricNumber(row?.baseline_enterprise_survival_rate)?Number(row[m.marl])-Number(row.baseline_enterprise_survival_rate):null;} if(hasMetricNumber(row?.[m.delta])) return Number(row[m.delta]); const gap=metricLevelGap(row,key); if(gap!==null) return gap; return null;}
+function metricLevelValue(row,key){const m=metricCatalog[key]||{}; if(hasMetricNumber(row?.[m.marl])) return Number(row[m.marl]); if(hasMetricNumber(row?.[m.levelMarl])) return Number(row[m.levelMarl]); return null;}
+function metricBaselineFieldName(key){const m=metricCatalog[key]||{}; if(m.levelBaseline) return m.levelBaseline; const marlField=m.levelMarl||m.marl||''; if(typeof marlField==='string'&&marlField.startsWith('marl_')) return marlField.replace(/^marl_/,'baseline_'); if(key==='survival') return 'baseline_enterprise_survival_rate'; return null;}
+function metricAlgorithmValue(row,key,algorithm='marl'){const m=metricCatalog[key]||{}; const field=algorithm==='marl'?(m.levelMarl||m.marl):metricBaselineFieldName(key); return field&&hasMetricNumber(row?.[field])?Number(row[field]):null;}
+function metricRelativeAlgorithmValue(row,key,base,algorithm='marl'){const m=metricCatalog[key]||{}, rowValue=metricAlgorithmValue(row,key,algorithm), baseValue=metricAlgorithmValue(base,key,algorithm); if(rowValue===null||baseValue===null) return null; return m.inverseGap?(baseValue-rowValue):(rowValue-baseValue);}
+function metricRelativePair(row,key,base){return {marl:metricRelativeAlgorithmValue(row,key,base,'marl'),heuristic:metricRelativeAlgorithmValue(row,key,base,'baseline')};}
+function metricPairCellHtml(row,key,base){const pair=metricRelativePair(row,key,base); return `<div style="display:flex;flex-direction:column;gap:4px;align-items:flex-start;min-width:116px"><span class='${deltaClass(pair.marl,key)}' style="font-weight:800">MARL ${metricText(pair.marl,key)}</span><span class='${deltaClass(pair.heuristic,key)}' style="font-weight:700;color:#5b6f86">启发式 ${metricText(pair.heuristic,key)}</span></div>`;}
+function metricValue(row,key,basis,base){if(basis==='within') return metricWithinValue(row,key); return metricRelativeAlgorithmValue(row,key,base,'marl');}
+function metricImproved(v,key){const n=Number(v??0),m=metricCatalog[key]||{}; return m.preferLower?-n:n;}
+function deltaClass(v,key=''){if(v===null||v===undefined||!Number.isFinite(Number(v))) return 'delta-neutral'; const n=metricImproved(v,key); if(n>1e-9) return 'delta-pos'; if(n<-1e-9) return 'delta-neg'; return 'delta-neutral';}
+function scenarioMetricMissingMessage(metricLabel){return `当前实验摘要未包含“${metricLabel}”所需字段。请重新运行 run_spatial_marl_experiments.py 生成新版 summary.json。`;}
+function updateScenarioSubtitle(){
+  const basis=el('scenarioBasisSelect').value||'within', metricKey=el('scenarioMetricSelect').value||'service', metric=metricCatalog[metricKey];
+  const metricLabel=metric.subtitleLabel||metric.label;
+  let text='';
+  if(basis==='relative'){
+    text=`当前展示的是“${metricLabel}”在各情景下相对基准情景的结果变化`;
+  }else{
+    text=`当前展示的是“${metricLabel}”这一结果变量在同一情景内，MARL 相对于启发式策略的增量效果。`;
+  }
+  el('scenarioSubtitle').textContent=text;
+}
+function renderScenario(){
+  if(!scenarioData?.scenario_summary?.length){
+    el('scenarioTitle').textContent='情景内：MARL vs 启发式 · 服务率';
+    el('scenarioSvg').innerHTML=`<rect x='0' y='0' width='1200' height='260' rx='16' fill='#f7faff'></rect><text x='600' y='136' text-anchor='middle' fill='#6b7f96' font-size='24' font-weight='700'>暂无批处理情景摘要</text>`;
+    el('scenarioTable').innerHTML='';
+    return;
+  }
+  const rows=scenarioData.scenario_summary, metricKey=el('scenarioMetricSelect').value||'service', basis=el('scenarioBasisSelect').value||'within', base=rows.find(r=>r.scenario==='baseline')||rows[0], metric=metricCatalog[metricKey], type=scenarioData.comparison_type==='config'?'配置':'情景';
+  el('scenarioTitle').textContent=basis==='relative'?`${type}相对基准情景 · ${metric.label}`:`${type}内：MARL vs 启发式 · ${metric.label}`;
+  if(basis==='relative'){
+    const chartRows=rows.map(r=>({label:scenarioNameMap[r.scenario]||r.scenario,value:metricRelativeAlgorithmValue(r,metricKey,base,'marl')}));
+    const validValues=chartRows.map(r=>r.value).filter(v=>v!==null&&Number.isFinite(Number(v)));
+    if(!validValues.length){
+      const note=scenarioMetricMissingMessage(metric.label);
+      el('scenarioSvg').innerHTML=`<defs><linearGradient id='scenarioBgEmpty' x1='0' x2='0' y1='0' y2='1'><stop offset='0%' stop-color='#fbfdff'/><stop offset='100%' stop-color='#f3f7fc'/></linearGradient></defs><rect x='0' y='0' width='1200' height='260' rx='16' fill='url(#scenarioBgEmpty)' stroke='#d7e3f1'></rect><text x='600' y='118' text-anchor='middle' fill='#28415f' font-size='24' font-weight='800'>当前图表暂无可用数值</text><text x='600' y='152' text-anchor='middle' fill='#6b7f96' font-size='18'>${note}</text>`;
+      el('scenarioTable').innerHTML=`<div class='report-table'><table><thead><tr><th>说明</th></tr></thead><tbody><tr><td style='text-align:left;padding:16px'>${note}</td></tr></tbody></table></div>`;
+      return;
+    }
+    const w=1200,hh=260,px=72,pt=32,pb=62,zeroY=(pt+(hh-pb))/2,half=Math.max((hh-pb-pt)/2,1),maxAbs=Math.max(...validValues.map(v=>Math.abs(Number(v??0))),metric.minAbs),slot=(w-2*px)/Math.max(chartRows.length,1),bw=Math.max(88,Math.min(178,slot-34)),labelBoxW=84;
+    let html=[`<defs><linearGradient id='scenarioBg' x1='0' x2='0' y1='0' y2='1'><stop offset='0%' stop-color='#fbfdff'/><stop offset='100%' stop-color='#f3f7fc'/></linearGradient><linearGradient id='posBar' x1='0' x2='0' y1='0' y2='1'><stop offset='0%' stop-color='#5bd1c7'/><stop offset='100%' stop-color='#1f9d8f'/></linearGradient><linearGradient id='negBar' x1='0' x2='0' y1='0' y2='1'><stop offset='0%' stop-color='#f6a89b'/><stop offset='100%' stop-color='#da5d4c'/></linearGradient><filter id='softShadow' x='-20%' y='-20%' width='140%' height='140%'><feDropShadow dx='0' dy='6' stdDeviation='8' flood-color='#b9c9dc' flood-opacity='0.35'/></filter></defs>`,`<rect x='0' y='0' width='${w}' height='${hh}' rx='16' fill='url(#scenarioBg)' stroke='#d7e3f1'></rect>`,`<line x1='${px}' y1='${pt+18}' x2='${w-px}' y2='${pt+18}' stroke='#e4edf7' stroke-width='1.5' />`,`<line x1='${px}' y1='${zeroY}' x2='${w-px}' y2='${zeroY}' stroke='#93a8bf' stroke-width='2.5' />`,`<line x1='${px}' y1='${hh-pb+8}' x2='${w-px}' y2='${hh-pb+8}' stroke='#e4edf7' stroke-width='1.5' />`,`<rect x='92' y='20' width='18' height='12' rx='6' fill='url(#posBar)' stroke='#1f9d8f'></rect>`,`<text x='118' y='30' fill='#36516f' font-size='13.5' font-weight='800'>MARL 相对基准</text>`];
+    chartRows.forEach((r,i)=>{
+      const x=px+i*slot+(slot-bw)/2;
+      if(r.value===null||!Number.isFinite(Number(r.value))){
+        html.push(`<line x1='${x+10}' y1='${zeroY}' x2='${x+bw-10}' y2='${zeroY}' stroke='#c9d5e4' stroke-width='6' stroke-dasharray='10 8' stroke-linecap='round'></line><text x='${x+bw/2}' y='${zeroY-14}' text-anchor='middle' fill='#8ca1b9' font-size='14' font-weight='700'>缺字段</text><text x='${x+bw/2}' y='${hh-18}' text-anchor='middle' fill='#36516f' font-size='16' font-weight='700'>${r.label}</text>`);
+        return;
+      }
+      const v=Number(r.value),bh=Math.max(4,half*Math.abs(v)/maxAbs),y=v>=0?zeroY-bh:zeroY,color=metricImproved(v,metricKey)>=0?'url(#posBar)':'url(#negBar)',ly=v>=0?y-10:y+bh+24,labelBoxX=Math.max(px,Math.min(x+bw/2-labelBoxW/2,w-px-labelBoxW));
+      html.push(`<rect x='${x}' y='${y}' width='${bw}' height='${bh}' rx='12' fill='${color}' filter='url(#softShadow)'></rect><rect x='${labelBoxX}' y='${ly-20}' width='${labelBoxW}' height='30' rx='15' fill='#ffffff' stroke='#d7e3f1'></rect><text x='${labelBoxX+labelBoxW/2}' y='${ly}' text-anchor='middle' fill='#1f3654' font-size='18' font-weight='800'>${metricText(v,metricKey)}</text><text x='${x+bw/2}' y='${hh-18}' text-anchor='middle' fill='#36516f' font-size='16' font-weight='700'>${r.label}</text>`);
+    });
+    el('scenarioSvg').innerHTML=html.join('');
+    el('scenarioTable').innerHTML=`<div class='report-table'><table><thead><tr><th>情景</th><th>覆盖</th><th>健康</th><th>服务率</th><th>企业负载率</th><th>慢病管理率</th><th>重症外流率</th><th>村民寿命提升</th><th>慢病寿命提升</th><th>社会经济收益增加</th><th>政府财政节约</th><th>农户福利提升</th><th>福利</th><th>公平性</th><th>企业存活率</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${scenarioNameMap[r.scenario]||r.scenario}</td><td class='${deltaClass(metricRelativeAlgorithmValue(r,'coverage',base,'marl'),'coverage')}'>${metricText(metricRelativeAlgorithmValue(r,'coverage',base,'marl'),'coverage')}</td><td class='${deltaClass(metricRelativeAlgorithmValue(r,'health',base,'marl'),'health')}'>${metricText(metricRelativeAlgorithmValue(r,'health',base,'marl'),'health')}</td><td class='${deltaClass(metricRelativeAlgorithmValue(r,'service',base,'marl'),'service')}'>${metricText(metricRelativeAlgorithmValue(r,'service',base,'marl'),'service')}</td><td class='${deltaClass(metricRelativeAlgorithmValue(r,'load',base,'marl'),'load')}'>${metricText(metricRelativeAlgorithmValue(r,'load',base,'marl'),'load')}</td><td class='${deltaClass(metricRelativeAlgorithmValue(r,'chronic',base,'marl'),'chronic')}'>${metricText(metricRelativeAlgorithmValue(r,'chronic',base,'marl'),'chronic')}</td><td class='${deltaClass(metricRelativeAlgorithmValue(r,'outflow',base,'marl'),'outflow')}'>${metricText(metricRelativeAlgorithmValue(r,'outflow',base,'marl'),'outflow')}</td><td class='${deltaClass(metricRelativeAlgorithmValue(r,'life_pop',base,'marl'),'life_pop')}'>${metricText(metricRelativeAlgorithmValue(r,'life_pop',base,'marl'),'life_pop')}</td><td class='${deltaClass(metricRelativeAlgorithmValue(r,'life_chronic',base,'marl'),'life_chronic')}'>${metricText(metricRelativeAlgorithmValue(r,'life_chronic',base,'marl'),'life_chronic')}</td><td class='${deltaClass(metricRelativeAlgorithmValue(r,'economic_gain',base,'marl'),'economic_gain')}'>${metricText(metricRelativeAlgorithmValue(r,'economic_gain',base,'marl'),'economic_gain')}</td><td class='${deltaClass(metricRelativeAlgorithmValue(r,'fiscal_saving',base,'marl'),'fiscal_saving')}'>${metricText(metricRelativeAlgorithmValue(r,'fiscal_saving',base,'marl'),'fiscal_saving')}</td><td class='${deltaClass(metricRelativeAlgorithmValue(r,'farmer_welfare',base,'marl'),'farmer_welfare')}'>${metricText(metricRelativeAlgorithmValue(r,'farmer_welfare',base,'marl'),'farmer_welfare')}</td><td class='${deltaClass(metricRelativeAlgorithmValue(r,'welfare',base,'marl'),'welfare')}'>${metricText(metricRelativeAlgorithmValue(r,'welfare',base,'marl'),'welfare')}</td><td class='${deltaClass(metricRelativeAlgorithmValue(r,'fairness',base,'marl'),'fairness')}'>${metricText(metricRelativeAlgorithmValue(r,'fairness',base,'marl'),'fairness')}</td><td class='${deltaClass(metricRelativeAlgorithmValue(r,'survival',base,'marl'),'survival')}'>${metricText(metricRelativeAlgorithmValue(r,'survival',base,'marl'),'survival')}</td></tr>`).join('')}</tbody></table></div>`;
+    return;
+  }
+  const chartRows=rows.map(r=>({label:scenarioNameMap[r.scenario]||r.scenario,value:metricValue(r,metricKey,basis,base)}));
+  const validRows=chartRows.filter(r=>r.value!==null&&Number.isFinite(Number(r.value)));
+  if(!validRows.length){
+    const note=scenarioMetricMissingMessage(metric.label);
+    el('scenarioSvg').innerHTML=`<defs><linearGradient id='scenarioBgEmpty' x1='0' x2='0' y1='0' y2='1'><stop offset='0%' stop-color='#fbfdff'/><stop offset='100%' stop-color='#f3f7fc'/></linearGradient></defs><rect x='0' y='0' width='1200' height='260' rx='16' fill='url(#scenarioBgEmpty)' stroke='#d7e3f1'></rect><text x='600' y='118' text-anchor='middle' fill='#28415f' font-size='24' font-weight='800'>当前图表暂无可用数值</text><text x='600' y='152' text-anchor='middle' fill='#6b7f96' font-size='18'>${note}</text>`;
+    el('scenarioTable').innerHTML=`<div class='report-table'><table><thead><tr><th>说明</th></tr></thead><tbody><tr><td style='text-align:left;padding:16px'>${note}</td></tr></tbody></table></div>`;
+    return;
+  }
+  const w=1200,hh=260,px=72,pt=28,pb=62,zeroY=(pt+(hh-pb))/2,half=Math.max((hh-pb-pt)/2,1),maxAbs=Math.max(...validRows.map(r=>Math.abs(Number(r.value??0))),metric.minAbs),slot=(w-2*px)/Math.max(chartRows.length,1),bw=Math.max(88,Math.min(178,slot-34));
+  let html=[`<defs><linearGradient id='scenarioBg' x1='0' x2='0' y1='0' y2='1'><stop offset='0%' stop-color='#fbfdff'/><stop offset='100%' stop-color='#f3f7fc'/></linearGradient><linearGradient id='posBar' x1='0' x2='0' y1='0' y2='1'><stop offset='0%' stop-color='#5bd1c7'/><stop offset='100%' stop-color='#1f9d8f'/></linearGradient><linearGradient id='negBar' x1='0' x2='0' y1='0' y2='1'><stop offset='0%' stop-color='#f6a89b'/><stop offset='100%' stop-color='#da5d4c'/></linearGradient><filter id='softShadow' x='-20%' y='-20%' width='140%' height='140%'><feDropShadow dx='0' dy='6' stdDeviation='8' flood-color='#b9c9dc' flood-opacity='0.35'/></filter></defs>`,`<rect x='0' y='0' width='${w}' height='${hh}' rx='16' fill='url(#scenarioBg)' stroke='#d7e3f1'></rect>`,`<line x1='${px}' y1='${pt+18}' x2='${w-px}' y2='${pt+18}' stroke='#e4edf7' stroke-width='1.5' />`,`<line x1='${px}' y1='${zeroY}' x2='${w-px}' y2='${zeroY}' stroke='#93a8bf' stroke-width='2.5' />`,`<line x1='${px}' y1='${hh-pb+8}' x2='${w-px}' y2='${hh-pb+8}' stroke='#e4edf7' stroke-width='1.5' />`];
+  chartRows.forEach((r,i)=>{const x=px+i*slot+(slot-bw)/2; if(r.value===null||!Number.isFinite(Number(r.value))){html.push(`<line x1='${x+10}' y1='${zeroY}' x2='${x+bw-10}' y2='${zeroY}' stroke='#c9d5e4' stroke-width='6' stroke-dasharray='10 8' stroke-linecap='round'></line><text x='${x+bw/2}' y='${zeroY-14}' text-anchor='middle' fill='#8ca1b9' font-size='14' font-weight='700'>缺字段</text><text x='${x+bw/2}' y='${hh-18}' text-anchor='middle' fill='#36516f' font-size='16' font-weight='700'>${r.label}</text>`); return;} const v=Number(r.value),bh=Math.max(4,half*Math.abs(v)/maxAbs),y=v>=0?zeroY-bh:zeroY,color=metricImproved(v,metricKey)>=0?'url(#posBar)':'url(#negBar)',ly=v>=0?y-10:y+bh+24; html.push(`<rect x='${x}' y='${y}' width='${bw}' height='${bh}' rx='12' fill='${color}' filter='url(#softShadow)'></rect><rect x='${x+bw/2-42}' y='${ly-20}' width='84' height='30' rx='15' fill='#ffffff' stroke='#d7e3f1'></rect><text x='${x+bw/2}' y='${ly}' text-anchor='middle' fill='#1f3654' font-size='18' font-weight='800'>${metricText(v,metricKey)}</text><text x='${x+bw/2}' y='${hh-18}' text-anchor='middle' fill='#36516f' font-size='16' font-weight='700'>${r.label}</text>`);});
+  el('scenarioSvg').innerHTML=html.join('');
+  el('scenarioTable').innerHTML=`<div class='report-table'><table><thead><tr><th>情景</th><th>覆盖</th><th>健康</th><th>服务率</th><th>企业负载率</th><th>慢病管理率</th><th>重症外流率</th><th>村民寿命提升</th><th>慢病寿命提升</th><th>社会经济收益增加</th><th>政府财政节约</th><th>农户福利提升</th><th>福利</th><th>公平性</th><th>企业存活率</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${scenarioNameMap[r.scenario]||r.scenario}</td><td class='${deltaClass(metricValue(r,'coverage',basis,base),'coverage')}'>${metricText(metricValue(r,'coverage',basis,base),'coverage')}</td><td class='${deltaClass(metricValue(r,'health',basis,base),'health')}'>${metricText(metricValue(r,'health',basis,base),'health')}</td><td class='${deltaClass(metricValue(r,'service',basis,base),'service')}'>${metricText(metricValue(r,'service',basis,base),'service')}</td><td class='${deltaClass(metricValue(r,'load',basis,base),'load')}'>${metricText(metricValue(r,'load',basis,base),'load')}</td><td class='${deltaClass(metricValue(r,'chronic',basis,base),'chronic')}'>${metricText(metricValue(r,'chronic',basis,base),'chronic')}</td><td class='${deltaClass(metricValue(r,'outflow',basis,base),'outflow')}'>${metricText(metricValue(r,'outflow',basis,base),'outflow')}</td><td class='${deltaClass(metricValue(r,'life_pop',basis,base),'life_pop')}'>${metricText(metricValue(r,'life_pop',basis,base),'life_pop')}</td><td class='${deltaClass(metricValue(r,'life_chronic',basis,base),'life_chronic')}'>${metricText(metricValue(r,'life_chronic',basis,base),'life_chronic')}</td><td class='${deltaClass(metricValue(r,'economic_gain',basis,base),'economic_gain')}'>${metricText(metricValue(r,'economic_gain',basis,base),'economic_gain')}</td><td class='${deltaClass(metricValue(r,'fiscal_saving',basis,base),'fiscal_saving')}'>${metricText(metricValue(r,'fiscal_saving',basis,base),'fiscal_saving')}</td><td class='${deltaClass(metricValue(r,'farmer_welfare',basis,base),'farmer_welfare')}'>${metricText(metricValue(r,'farmer_welfare',basis,base),'farmer_welfare')}</td><td class='${deltaClass(metricValue(r,'welfare',basis,base),'welfare')}'>${metricText(metricValue(r,'welfare',basis,base),'welfare')}</td><td class='${deltaClass(metricValue(r,'fairness',basis,base),'fairness')}'>${metricText(metricValue(r,'fairness',basis,base),'fairness')}</td><td class='${deltaClass(metricValue(r,'survival',basis,base),'survival')}'>${metricText(metricValue(r,'survival',basis,base),'survival')}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function forward(){const streamSource=streamPlaybackEpisodes(); if(mode==='stream'&&streamSource.length){const activeTrace=currentTrace().trace||[]; if(activeTrace.length&&index<activeTrace.length-1){index+=1; renderTrace(); return;} if(streamEpisodeIndex<streamSource.length-1){streamEpisodeIndex+=1; index=0; renderTrace(); return;} streamEpisodeIndex=0; index=0; renderTrace(); return;} const t=currentTrace().trace||[]; if(!t.length) return; index=(index+1)%t.length; renderTrace();}
+el('playBtn').onclick=()=>{const streamSource=streamPlaybackEpisodes(); if(mode==='stream'&&streamSource.length){const activeTrace=currentTrace().trace||[]; const atEnd=streamEpisodeIndex>=streamSource.length-1&&index>=Math.max(activeTrace.length-1,0); if(!streamPlaybackPrimed||atEnd){streamEpisodeIndex=0; index=0; streamPlaybackPrimed=true; renderTrace();}} if(timer) clearInterval(timer); timer=setInterval(forward,1200);}; el('pauseBtn').onclick=()=>{if(timer) clearInterval(timer); timer=null;}; el('stepSlider').oninput=e=>{index=Math.max(0,Number(e.target.value)-1); streamPlaybackPrimed=true; renderTrace();}; el('traceMode').onchange=e=>{mode=e.target.value; if(mode==='stream'){const streamSource=streamPlaybackEpisodes(); if(streamSource.length) streamEpisodeIndex=Math.max(streamSource.length-1,0); streamPlaybackPrimed=false;} index=0; renderTrace();}; el('summaryModeSelect').onchange=()=>setSummaryMode(); el('experimentSelect').onchange=async()=>{el('experimentSelect').dataset.userPicked='1'; await ensureScenarioLoaded(); renderSummary(); renderScenario(); updateScenarioSubtitle();}; el('scenarioMetricSelect').onchange=()=>{renderScenario(); updateScenarioSubtitle();}; el('scenarioBasisSelect').onchange=()=>{updateScenarioSubtitle(); renderScenario();}; el('configSelect').onchange=()=>renderMasterCompileSummary(); el('previewBtn').onclick=()=>sendWs('preview_scenario',collectEditorPayload()); el('runBtn').onclick=()=>{resetStreamPlayback(); renderTrace(); renderCurve(); renderStrategy(); sendWs('run_training',collectEditorPayload());}; el('resetBtn').onclick=()=>applyEditorDefaults(editorDefaults); el('exportBtn').onclick=()=>sendWs('export_report',{report_name:el('reportNameInput').value||'platform_report',experiment_summary:el('experimentSelect').value||''});
+if(el('scenarioBasisSelect')) el('scenarioBasisSelect').value='relative';
+handleWsMessage({type:'server_state',payload:{available_configs:{spatial_network_recommended:''},available_scenarios:['baseline','harsh_weather','low_trust','sparse_demand','chronic_burden','policy_push'],current_request:{config_name:'spatial_network_recommended',scenario_name:'baseline'},editor_defaults:{simulation:{base_need_rate:0.18},environment:{reimbursement_rate:0.20},policy:{per_service_subsidy:0.15,performance_subsidy_per_coverage:25},constraints:{minimum_coverage_ratio:0.55,fairness_floor:0.65,remote_service_floor:0.38},disturbances:{weather_std:0.18,airspace_std:0.10,device_std:0.08}},status:'idle'}});
+['configSelect','scenarioSelect','episodesInput','evalEveryInput','seedInput','runNameInput','reportNameInput','baseNeedRateInput','reimbursementRateInput','perServiceSubsidyInput','performanceSubsidyInput','coverageFloorInput','fairnessFloorInput','remoteFloorInput','weatherStdInput','airspaceStdInput','deviceStdInput','previewBtn','runBtn','resetBtn','exportBtn'].forEach(id=>{const node=el(id);if(node){node.disabled=true;node.title='公开展示版不执行在线训练';}});
+setWsStatus('静态数据已加载','good');
+setPlatformStatus('公开展示','idle');
+refreshAll().then(()=>{setSummaryMode();updateScenarioSubtitle();});
+</script>
+</body>
+</html>
