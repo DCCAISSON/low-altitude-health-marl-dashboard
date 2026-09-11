@@ -1,0 +1,338 @@
+[simulation]
+seed = 42
+periods = 24
+base_need_rate = 0.18
+
+[environment]
+reimbursement_rate = 0.2
+fixed_subsidy = 0
+service_health_gain = 0.08
+unmet_need_penalty = 0.0544
+background_health_decay = 0.012
+trust_update_speed = 0.12
+weather_service_penalty = 0.55
+medical_surge_penalty = 0.6
+airspace_service_penalty = 0.38
+device_failure_penalty = 0.25
+
+[markov]
+state_names = ["Healthy", "AtRisk", "ManagedChronic", "UnmanagedChronic", "AcuteSevere"]
+state_names_cn = ["健康/低风险", "风险上升/亚健康", "慢病已管理", "慢病未管理", "急性/重症"]
+state_weights = [1, 0.8, 0.58, 0.32, 0.1]
+base_transition = [[0.82, 0.14, 0.03, 0.01, 0], [0.1, 0.71, 0.14, 0.04, 0.01], [0.04, 0.1, 0.67, 0.15, 0.04], [0.01, 0.05, 0.18, 0.6, 0.16], [0, 0.02, 0.1, 0.28, 0.6]]
+service_effect = 0.55
+unmet_need_effect = 0.68
+shock_effect = 0.22
+trust_effect = 0.12
+
+[disturbances]
+weather_persistence = 0.6
+medical_surge_persistence = 0.45
+demand_persistence = 0.35
+weather_std = 0.18
+medical_surge_std = 0.12
+demand_std = 0.1
+airspace_persistence = 0.4
+airspace_std = 0.1
+device_persistence = 0.35
+device_std = 0.08
+
+[enterprise]
+contract_fixed_revenue = 0
+contract_stability_bonus = 18
+empty_flight_cost = 0.35
+loss_streak_penalty = 25
+reliability_unit_cost = 12
+base_total_capacity = 214
+price_min = 1.2
+price_max = 4.8
+price_default = 2.6
+reliability_default = 0.35
+variable_cost = 1.425
+fixed_hub_cost = 45
+interruption_cost = 1.1
+route_open_threshold = 0.45
+route_time_cost_weight = 0.22
+reserve_cost_weight = 8.0
+battery_time_limit_hours = 3.2
+battery_penalty_weight = 55.0
+weather_robust_bonus_weight = 20.0
+local_contract_service_bonus = 10.0
+sample_turnaround_penalty = 6.0
+
+[medical]
+queue_penalty_weight = 0.7
+idle_penalty_weight = 5
+chronic_management_value = 80
+severe_outflow_penalty = 140
+referral_default = 0.72
+integration_default = 0.42
+value_per_case = 4.2
+coordination_cost = 20
+overflow_penalty = 0.7
+followup_completion_value = 38.0
+county_retention_value = 28.0
+bp_glucose_control_value = 24.0
+specialist_bypass_penalty = 85.0
+avoidable_hospitalization_penalty = 95.0
+post_exam_management_value = 26.0
+screening_completion_value = 18.0
+township_trust_value = 16.0
+staff_shortage_penalty = 22.0
+risk_stratification_value = 12.0
+
+[farmer]
+health_gain_weight = 70
+unmet_penalty_weight = 12
+severe_outflow_loss = 180
+price_sensitivity = 1.1
+time_sensitivity = 0.45
+trust_sensitivity = 1.25
+health_need_sensitivity = 1.8
+learning_cost = 0.35
+time_value = 0.9
+travel_time_to_town_minutes = 30.0
+travel_roundtrip_minutes = 60.0
+roundtrip_transport_cost_yuan = 100.0
+transport_cost_reference_yuan = 100.0
+uav_delivery_out_of_pocket_yuan = 0.0
+sample_test_out_of_pocket_yuan = 20.0
+sample_cost_reference_yuan = 20.0
+time_cost_weight = 1.25
+out_of_pocket_weight = 0.45
+local_sample_point_bonus = 0.35
+latent_demand_release_rate = 0.30
+local_service_trust_gain = 0.06
+big_hospital_avoidance_weight = 0.22
+
+[policy]
+fixed_subsidy = 0
+per_service_subsidy = 0
+performance_subsidy_per_coverage = 0
+fairness_subsidy_per_point = 0
+remote_service_subsidy = 0
+chronic_management_subsidy = 0
+reimbursement_rate_floor = 0
+patient_uav_delivery_fee = 0.0
+local_sampling_subsidy = 0.0
+
+[constraints]
+minimum_coverage_ratio = 0.5
+fairness_floor = 0.62
+coverage_shortfall_penalty = 120
+fairness_penalty = 85
+underserved_penalty = 60
+underserved_threshold = 0.4
+hospital_capacity_redline = 0.92
+hospital_redline_penalty = 90
+enterprise_exit_cash_threshold = -420
+enterprise_exit_periods = 3
+weather_interrupt_cost_weight = 1
+airspace_interrupt_cost_weight = 0.7
+device_interrupt_cost_weight = 0.6
+remote_service_floor = 0.35
+remote_floor_penalty = 75
+
+[[villages]]
+id = "V1"
+name = "平原主粮村"
+population = 260
+base_health = 0.6464
+trust = 0.46
+demand_weight = 1.05
+traditional_time = 7.8
+risk_weight = 0.52
+state_distribution = [0.16, 0.34, 0.26, 0.18, 0.06]
+
+[[villages]]
+id = "V2"
+name = "丘陵果蔬村"
+population = 210
+base_health = 0.6018
+trust = 0.43
+demand_weight = 1.12
+traditional_time = 8.6
+risk_weight = 0.58
+state_distribution = [0.11, 0.3, 0.31, 0.2, 0.08]
+
+[[villages]]
+id = "V3"
+name = "偏远慢病村"
+population = 180
+base_health = 0.5556
+trust = 0.4
+demand_weight = 1.18
+traditional_time = 9.4
+risk_weight = 0.66
+state_distribution = [0.08, 0.27, 0.3, 0.23, 0.12]
+
+[[villages]]
+id = "V4"
+name = "山地老龄村"
+population = 160
+base_health = 0.5374
+trust = 0.38
+demand_weight = 1.22
+traditional_time = 10.2
+risk_weight = 0.71
+state_distribution = [0.07, 0.24, 0.32, 0.24, 0.13]
+
+[[hubs]]
+id = "H1"
+name = "县域东部枢纽"
+base_capacity = 118
+reliability = 0.82
+
+[[hubs]]
+id = "H2"
+name = "县域西部枢纽"
+base_capacity = 96
+reliability = 0.78
+
+[[hospitals]]
+id = "C1"
+name = "县人民医院"
+base_capacity = 132
+integration_base = 0.88
+
+[[hospitals]]
+id = "C2"
+name = "县中医院"
+base_capacity = 108
+integration_base = 0.84
+
+[[edges]]
+origin = "V1"
+destination = "H1"
+travel_time = 1.1
+weather_exposure = 0.12
+
+[[edges]]
+origin = "V1"
+destination = "H2"
+travel_time = 2.3
+weather_exposure = 0.2
+
+[[edges]]
+origin = "V2"
+destination = "H1"
+travel_time = 1.7
+weather_exposure = 0.18
+
+[[edges]]
+origin = "V2"
+destination = "H2"
+travel_time = 1.35
+weather_exposure = 0.16
+
+[[edges]]
+origin = "V3"
+destination = "H1"
+travel_time = 2.45
+weather_exposure = 0.27
+
+[[edges]]
+origin = "V3"
+destination = "H2"
+travel_time = 1.25
+weather_exposure = 0.22
+
+[[edges]]
+origin = "V4"
+destination = "H1"
+travel_time = 1.55
+weather_exposure = 0.24
+
+[[edges]]
+origin = "V4"
+destination = "H2"
+travel_time = 2.05
+weather_exposure = 0.3
+
+[[edges]]
+origin = "H1"
+destination = "C1"
+travel_time = 0.95
+weather_exposure = 0.08
+
+[[edges]]
+origin = "H1"
+destination = "C2"
+travel_time = 1.65
+weather_exposure = 0.1
+
+[[edges]]
+origin = "H2"
+destination = "C1"
+travel_time = 1.55
+weather_exposure = 0.09
+
+[[edges]]
+origin = "H2"
+destination = "C2"
+travel_time = 0.92
+weather_exposure = 0.07
+
+[[task_types]]
+id = "chronic_followup"
+name = "慢病复诊/随访"
+demand_share = 0.33
+priority = 0.7
+time_sensitivity_multiplier = 1.05
+health_benefit_multiplier = 1.2
+price_sensitivity_multiplier = 0.9
+failure_penalty_multiplier = 1.15
+medical_value_multiplier = 1.1
+enterprise_cost_multiplier = 1
+reimbursement_bonus = 0.06
+trust_bonus = 0.04
+demand_shock_multiplier = 0.8
+risk_weight_multiplier = 1
+
+[[task_types]]
+id = "sample_transport"
+name = "检验样本送检"
+demand_share = 0.25
+priority = 0.88
+time_sensitivity_multiplier = 1.28
+health_benefit_multiplier = 1
+price_sensitivity_multiplier = 0.95
+failure_penalty_multiplier = 1.35
+medical_value_multiplier = 1.26
+enterprise_cost_multiplier = 1.06
+reimbursement_bonus = 0.08
+trust_bonus = 0.03
+demand_shock_multiplier = 1.05
+risk_weight_multiplier = 1.08
+
+[[task_types]]
+id = "medicine_delivery"
+name = "常用药配送"
+demand_share = 0.24
+priority = 0.56
+time_sensitivity_multiplier = 0.86
+health_benefit_multiplier = 0.92
+price_sensitivity_multiplier = 1.08
+failure_penalty_multiplier = 0.82
+medical_value_multiplier = 0.94
+enterprise_cost_multiplier = 0.9
+reimbursement_bonus = 0.03
+trust_bonus = 0.02
+demand_shock_multiplier = 0.95
+risk_weight_multiplier = 0.92
+
+[[task_types]]
+id = "acute_urgent"
+name = "急性高优先级需求"
+demand_share = 0.18
+priority = 1
+time_sensitivity_multiplier = 1.65
+health_benefit_multiplier = 1.55
+price_sensitivity_multiplier = 0.55
+failure_penalty_multiplier = 1.8
+medical_value_multiplier = 1.52
+enterprise_cost_multiplier = 1.22
+reimbursement_bonus = 0.12
+trust_bonus = 0.08
+demand_shock_multiplier = 1.28
+risk_weight_multiplier = 1.2
