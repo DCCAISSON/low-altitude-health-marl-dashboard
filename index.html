@@ -12,6 +12,7 @@
 :root{--bg:#f4f7fb;--panel:#ffffff;--panel-soft:#f8fbff;--line:#d6e2f0;--line-strong:#b7c8dc;--text:#0f172a;--muted:#5b708b;--accent:#2563eb;--accent-soft:#dbeafe;--good:#15803d;--warn:#b45309;--bad:#b91c1c}
 body{font-family:Arial,'Microsoft YaHei',sans-serif;margin:0;background:linear-gradient(180deg,#eef4fb 0%,#f8fbff 100%);color:var(--text)}
 .wrap{max-width:1860px;margin:0 auto;padding:28px 28px 42px}
+.platform-title{font-size:38px;margin:0 0 22px;text-align:center;color:#0b1b33;letter-spacing:.6px}
 .header{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;padding:0 2px 4px}
 .header-main{display:flex;flex-direction:column;gap:10px}
 .header-kicker{font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:#4f6b8a;font-weight:800}
@@ -21,8 +22,9 @@ body{font-family:Arial,'Microsoft YaHei',sans-serif;margin:0;background:linear-g
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
-h1{font-size:34px;margin:0 0 6px;color:#0b1b33;letter-spacing:.3px}
+.dashboard-title{font-size:34px;margin:0 0 6px;color:#0b1b33;letter-spacing:.3px;font-weight:800}
 h2{font-size:31px;margin:0;color:#13233c}.muted{color:var(--muted)}
+.heading-note{font-size:16px;font-weight:600;color:var(--muted)}
 .value{font-size:30px;font-weight:800;line-height:1.2;word-break:break-word;color:#10213a}
 .label{font-size:15px;color:var(--muted);font-weight:700;margin-bottom:6px}
 .insight-groups{display:grid;grid-template-columns:1fr;gap:18px;margin-top:18px}
@@ -117,16 +119,17 @@ input[data-dirty='1']{border-color:#2563eb;background:#f8fbff;box-shadow:0 0 0 3
 .plot-card{padding:22px 22px 18px}
 .plot-shell{padding:8px 4px 2px}
 .playback-card{padding-top:14px;padding-bottom:14px}
-@media(max-width:1600px){.editor{grid-template-columns:repeat(6,minmax(150px,1fr))}.basic-editor{grid-template-columns:repeat(4,minmax(150px,1fr))}.policy-editor{grid-template-columns:repeat(3,minmax(140px,1fr))}}@media(max-width:1280px){.grid2,.grid3,.summary-row,.control-grid,.preview-grid{grid-template-columns:1fr}.editor{grid-template-columns:repeat(4,minmax(150px,1fr))}.basic-editor,.policy-editor{grid-template-columns:repeat(3,minmax(150px,1fr))}}@media(max-width:1100px){.editor,.basic-editor,.policy-editor{grid-template-columns:repeat(3,minmax(150px,1fr))}}@media(max-width:900px){.editor,.compact-editor,.basic-editor,.policy-editor{grid-template-columns:repeat(2,minmax(150px,1fr))}.button-row{align-items:flex-start}}@media(max-width:640px){.wrap{padding:18px 12px 30px}.header{flex-direction:column;gap:10px}.header-meta{width:100%;align-items:stretch}.status-board{min-width:0}.card,.control-panel,.plot-card{padding:16px 14px;border-radius:16px}h1{font-size:27px;line-height:1.25}h2{font-size:24px}.panel-subtitle{font-size:16px}.editor,.compact-editor,.basic-editor,.policy-editor{grid-template-columns:1fr}.button-row,.controls{align-items:stretch}.button-group{width:100%}.button-group button{flex:1 1 calc(50% - 8px)}#stepSlider{width:100%!important}.summary-select{min-width:0}.value{font-size:26px}.insight-value{font-size:30px}}
+@media(max-width:1600px){.editor{grid-template-columns:repeat(6,minmax(150px,1fr))}.basic-editor{grid-template-columns:repeat(4,minmax(150px,1fr))}.policy-editor{grid-template-columns:repeat(3,minmax(140px,1fr))}}@media(max-width:1280px){.grid2,.grid3,.summary-row,.control-grid,.preview-grid{grid-template-columns:1fr}.editor{grid-template-columns:repeat(4,minmax(150px,1fr))}.basic-editor,.policy-editor{grid-template-columns:repeat(3,minmax(150px,1fr))}}@media(max-width:1100px){.editor,.basic-editor,.policy-editor{grid-template-columns:repeat(3,minmax(150px,1fr))}}@media(max-width:900px){.editor,.compact-editor,.basic-editor,.policy-editor{grid-template-columns:repeat(2,minmax(150px,1fr))}.button-row{align-items:flex-start}}@media(max-width:640px){.wrap{padding:18px 12px 30px}.platform-title{font-size:29px;line-height:1.25;margin-bottom:16px}.dashboard-title{font-size:27px;line-height:1.25}.header{flex-direction:column;gap:10px}.header-meta{width:100%;align-items:stretch}.status-board{min-width:0}.card,.control-panel,.plot-card{padding:16px 14px;border-radius:16px}h2{font-size:24px}.heading-note{font-size:14px}.panel-subtitle{font-size:16px}.editor,.compact-editor,.basic-editor,.policy-editor{grid-template-columns:1fr}.button-row,.controls{align-items:stretch}.button-group{width:100%}.button-group button{flex:1 1 calc(50% - 8px)}#stepSlider{width:100%!important}.summary-select{min-width:0}.value{font-size:26px}.insight-value{font-size:30px}}
 </style>
 </head>
 <body>
 <div class='wrap'>
+  <h1 class='platform-title'>三农政策模拟服务平台</h1>
   <div class='header'>
     <div class='header-main'>
-      <div class='header-kicker'>Agriculture, Rural Areas &amp; Farmers Policy Simulation Platform</div>
+      <div class='header-kicker'>RESEARCH DECISION DASHBOARD</div>
       <div>
-      <h1>三农政策模拟服务平台</h1>
+      <div class='dashboard-title'>低空健康服务 MARL 决策看板</div>
       <div class='panel-subtitle'>面向农村慢病管理的多主体博弈、情景评估与政策支持平台</div>
       </div>
     </div>
@@ -246,7 +249,7 @@ input[data-dirty='1']{border-color:#2563eb;background:#f8fbff;box-shadow:0 0 0 3
 
   <div class='grid3'>
     <div class='card'><h2>任务类型</h2><table><thead><tr><th>任务</th><th>需求</th><th>服务</th><th>服务率</th></tr></thead><tbody id='taskRows'></tbody></table></div>
-    <div class='card' style='grid-column:span 2'><h2>村镇节点明细</h2><div class='panel-subtitle'>与上方空间网络的五村五镇示意节点完全对应。</div><div class='table-wrap'><table><thead><tr><th>模式</th><th>节点类型</th><th>节点名称</th><th>关键特征</th><th>汇聚方式</th><th>承接医疗点</th></tr></thead><tbody id='villageRows'></tbody></table></div></div>
+    <div class='card' style='grid-column:span 2'><h2>村镇节点明细 <span class='heading-note'>（村镇需求来自模拟数据）</span></h2><div class='panel-subtitle'>与上方空间网络的五村五镇示意节点完全对应。</div><div class='table-wrap'><table><thead><tr><th>模式</th><th>节点类型</th><th>节点名称</th><th>关键特征</th><th>汇聚方式</th><th>承接医疗点</th></tr></thead><tbody id='villageRows'></tbody></table></div></div>
   </div>
 </div>
 <script>
@@ -426,8 +429,8 @@ function renderStrategy(){
 function renderTrace(){if(mode==='stream'){const episodes=streamPlaybackEpisodes(); if(episodes.length&&!streamPlaybackPrimed) streamEpisodeIndex=Math.max(0,episodes.length-1);} const p=currentTrace(),t=p.trace||[],s=t[index]||null; el('stepSlider').max=Math.max(t.length,1); el('stepSlider').value=t.length?index+1:1; el('stepLabel').textContent=s?`第 ${s.t} 期`:'暂无回放'; el('traceLabel').textContent=[mode==='best'?'最佳回放':(mode==='stream'?'实时流':'最新回放'),p.episode?`轮次：${p.episode}`:'',p.phase?`阶段：${p.phase}`:'',t.length?`期数：${Math.min(index+1,t.length)}/${t.length}`:''].filter(Boolean).join(' · '); renderCurve(); renderStrategy(); renderNetwork(s,p.network||{}); renderFairness(s); renderStepMetrics(s,p.summary||{}); renderTaskRows(s); renderVillageRows(s);}
 function networkLaneDefs(){
   return [
-    {modeLabel:'模式一',title:'模式一：杭州市余杭区黄湖镇',routeBadge:'村庄级下沉',sourceTitle:'村庄需求节点',collectLabel:'村镇常规收集',enterpriseLabel:'无人机企业（运营驻扎地）',hubBadge:'血样配送枢纽',hubTitle:'无人机中转点',hubDesc:'地勤、机巢、电池调度中心',flightLabel:'无人机企业执飞',hospitalTitle:'黄湖镇社区卫生服务中心',nodeType:'村庄',accent:'#047857',chip:'#d1fae5',border:'#a7f3d0',sourceProfiles:[{name:'王位山村',trait:'高海拔盘山路，急危送检最难'},{name:'赐璧村',trait:'留守老人多，慢病体检配药需求大'},{name:'虎山村',trait:'居住分散，居家养老依赖高'},{name:'清波村',trait:'水系绕行多，基层检测设备不足'},{name:'青山村',trait:'健康意识强，新物流接受快'}]},
-    {modeLabel:'模式二',title:'模式二：浙江省丽水市松阳县',routeBadge:'乡镇级下沉',sourceTitle:'乡镇需求节点',collectLabel:'乡镇集中汇聚',enterpriseLabel:'无人机企业（运营驻扎地）',hubBadge:'血样配送枢纽',hubTitle:'无人机中转点',hubDesc:'区域性集散升降坪',flightLabel:'无人机企业执飞',hospitalTitle:'松阳县人民医院',nodeType:'乡镇',accent:'#1d4ed8',chip:'#dbeafe',border:'#bfdbfe',sourceProfiles:[{name:'玉岩镇',trait:'深山偏远，急危重症送检痛点突出'},{name:'新兴镇',trait:'茶季劳作强，下山就医时间少'},{name:'大东坝镇',trait:'山路蜿蜒，老年群体较大'},{name:'象溪镇',trait:'带状分布较长，远端就医距离远'},{name:'古市镇',trait:'人口基数大，样本需批量转运'}]},
+    {modeLabel:'模式一',title:'模式一：杭州市A区某镇',routeBadge:'村庄级下沉',sourceTitle:'村庄需求节点',collectLabel:'村镇常规收集',enterpriseLabel:'无人机企业（运营驻扎地）',hubBadge:'血样配送枢纽',hubTitle:'无人机中转点',hubDesc:'地勤、机巢、电池调度中心',flightLabel:'无人机企业执飞',hospitalTitle:'某镇社区卫生服务中心',nodeType:'村庄',accent:'#047857',chip:'#d1fae5',border:'#a7f3d0',sourceProfiles:[{name:'王位山村',trait:'高海拔盘山路，急危送检最难'},{name:'赐璧村',trait:'留守老人多，慢病体检配药需求大'},{name:'虎山村',trait:'居住分散，居家养老依赖高'},{name:'清波村',trait:'水系绕行多，基层检测设备不足'},{name:'青山村',trait:'健康意识强，新物流接受快'}]},
+    {modeLabel:'模式二',title:'模式二：浙江省丽水市C县',routeBadge:'乡镇级下沉',sourceTitle:'乡镇需求节点',collectLabel:'乡镇集中汇聚',enterpriseLabel:'无人机企业（运营驻扎地）',hubBadge:'血样配送枢纽',hubTitle:'无人机中转点',hubDesc:'区域性集散升降坪',flightLabel:'无人机企业执飞',hospitalTitle:'C县人民医院',nodeType:'乡镇',accent:'#1d4ed8',chip:'#dbeafe',border:'#bfdbfe',sourceProfiles:[{name:'玉岩镇',trait:'深山偏远，急危重症送检痛点突出'},{name:'新兴镇',trait:'茶季劳作强，下山就医时间少'},{name:'大东坝镇',trait:'山路蜿蜒，老年群体较大'},{name:'象溪镇',trait:'带状分布较长，远端就医距离远'},{name:'古市镇',trait:'人口基数大，样本需批量转运'}]},
   ];
 }
 function renderNetwork(step,network){
